@@ -158,7 +158,7 @@ implementation("io.github.reflectframework:reflect-telegram-bot:1.0.0")
 ---
 
 ### **🏁 Step 1️⃣:** Setting required credentials via application.yml file
-```
+```yaml
 bot:
   domain: YOUR_DOMAIN  # https://example.com or example.com
   token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot

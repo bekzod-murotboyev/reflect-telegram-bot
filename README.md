@@ -373,6 +373,16 @@ public class Controller {
 
 Fantastic News! You've completed reading the documentation for `io.github.reflectframework:reflect-telegram-bot`! 🚀 Your commitment to understanding the library and its features is truly commendable.
 
+---
+
+## Example Project: Telegram Bot using **Reflect Telegram Bot**
+
+This example project demonstrates the implementation of a Telegram bot using the `io.github.reflectframework:reflect-telegram-bot` for handling incoming messages, callbacks, and other interactions.
+
+**Full Source Code:** [View on GitHub](https://github.com/bekzod-murotboyev/unit-bot)
+
+---
+
 ## Key Takeaways:
 
 1. **Comprehensive Understanding:** By finishing the documentation, you now possess a comprehensive understanding of `io.github.reflectframework:reflect-telegram-bot`, its functionalities, and how it can enhance your Telegram bot projects.

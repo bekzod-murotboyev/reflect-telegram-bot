@@ -377,7 +377,7 @@ Fantastic News! You've completed reading the documentation for `io.github.reflec
 
 ## Example Project: Telegram Bot using **Reflect Telegram Bot**
 
-This example project demonstrates the implementation of a Telegram bot using the `io.github.reflectframework:reflect-telegram-bot` for handling incoming messages, callbacks, and other interactions.
+The **Unit Bot** example project showcases a Telegram bot integrated with Spotify, allowing users to search for music by name. This project is built using `io.github.reflectframework:reflect-telegram-bot`, highlighting the seamless integration of a Telegram bot with external APIs like Spotify.
 
 **Full Source Code:** [View on GitHub](https://github.com/bekzod-murotboyev/unit-bot)
 

@@ -24,7 +24,7 @@ public class RegisterController {
 
     @TextMapping(regexp = "/start")
     public UserState showStartMenu(HashedUser user) {
-        sender.sendMessage(user, "📲 Change Phone", KeyboardType.CONTACT);
+        sender.sendMessage(user, "📲 Enter Your Phone", KeyboardType.CONTACT);
         return State.SEND_PHONE;
     }
     

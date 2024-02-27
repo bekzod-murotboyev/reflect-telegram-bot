@@ -489,7 +489,7 @@ public UserState locationMapping(HashedUser user, Location location){
 ```
 In this example, the @LocationMapping annotation is configured to catch only location events from group and supergroup chats. By setting chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP}, the method locationMapping will only be triggered for location messages in these specified chat types.
 
-## Redis-based Auto-Configuration
+# Redis-based Auto-Configuration
 
 Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
 ```yaml
@@ -501,7 +501,7 @@ data:
       enabled: true   # Default: false
 ```
 
-## i18n Support
+# i18n Support
 Now, your bot is ready to speak multiple languages, providing a personalized experience for users around the world! 🌍🌐
 ```yml
 bot:

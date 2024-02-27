@@ -407,11 +407,11 @@ The **Unit Bot** example project showcases a Telegram bot integrated with Spotif
 
 # Key Features 🚀
 
-# Mapping Annotations and Regular Expression Checks 🧐📝
+## Mapping Annotations and Regular Expression Checks 🧐📝
 
 In the Reflect Telegram Bot Library, mapping annotations come equipped with a versatile feature – the `regexp` field. This field allows you to define a regular expression (regexp) pattern that incoming text messages must match for a particular method to be triggered.
 
-## Example: Text Mapping
+### Example: Text Mapping
 
 Consider the `@TextMapping` annotation:
 
@@ -423,7 +423,7 @@ public UserState startMapping(HashedUser user){
 ```
 In this example, the `@TextMapping` annotation is configured with `regexp = "/start"`. This means that the `startMapping` method will only be triggered when a user sends a text message containing `/start`. The regular expression acts as a filter, ensuring that the method responds specifically to messages that match the defined pattern.
 
-## Example: Callback Query Mapping
+### Example: Callback Query Mapping
 
 Consider the `@CallbackQueryMapping` annotation:
 
@@ -437,11 +437,11 @@ Here, the @CallbackQueryMapping annotation uses dataRegexp = "^option_\\d+$". Th
 
 By utilizing the regexp or dataRegexp field in mapping annotations, you can enforce specific text patterns, adding a layer of control and customization to your bot's interaction logic. This feature is particularly useful when you want methods to respond selectively based on the content of incoming messages. 🧐📝
 
-# Mapping Annotations and User States 🚦🔍
+## Mapping Annotations and User States 🚦🔍
 
 Within the Reflect Telegram Bot Library, mapping annotations include a powerful feature – the `states` field. This field provides the capability to check the user's state every time they make a request. The default value for `states` is an empty array, meaning that user state checking is not enforced by default.
 
-## Example: Text Mapping
+### Example: Text Mapping
 
 Consider the `@TextMapping` annotation:
 
@@ -455,11 +455,11 @@ In this example, the @TextMapping annotation includes states = {State.INIT}. Thi
 
 By leveraging the states field in mapping annotations, you introduce a dynamic element to your bot's interaction logic. Methods can be configured to respond conditionally based on the user's state, providing a tailored and context-aware user experience. 🚦🔍
 
-# Mapping Annotations and Target Fields 📌
+## Mapping Annotations and Target Fields 📌
 
 In the Reflect Telegram Bot Library, mapping annotations play a crucial role in associating methods with specific types of incoming messages or events. Each mapping annotation comes with its own designated `target` field, providing the required type as a method parameter.
 
-## Example: Contact Mapping
+### Example: Contact Mapping
 
 Consider the `@ContactMapping` annotation:
 
@@ -473,11 +473,11 @@ In this example, the @ContactMapping annotation specifies that this method is tr
 
 ---
 
-# Mapping Annotations and Chat Types 🌐💬
+## Mapping Annotations and Chat Types 🌐💬
 
 In the Reflect Telegram Bot Library, mapping annotations are equipped with a powerful feature – the `chatTypes` field. This field allows you to explicitly declare the chat types for which a particular method should be triggered. The default chat type is set to private.
 
-## Example: Location Mapping
+### Example: Location Mapping
 
 Consider the `@LocationMapping` annotation:
 
@@ -489,7 +489,7 @@ public UserState locationMapping(HashedUser user, Location location){
 ```
 In this example, the @LocationMapping annotation is configured to catch only location events from group and supergroup chats. By setting chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP}, the method locationMapping will only be triggered for location messages in these specified chat types.
 
-# Redis-based Auto-Configuration
+## Redis-based Auto-Configuration
 
 Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
 ```yaml
@@ -501,7 +501,7 @@ data:
       enabled: true   # Default: false
 ```
 
-# i18n Support
+## i18n Support
 Now, your bot is ready to speak multiple languages, providing a personalized experience for users around the world! 🌍🌐
 ```yml
 bot:

@@ -135,13 +135,13 @@ The library `io.github.reflectframework:reflect-telegram-bot` is designed to spe
 If you choose to use this particular library, it's important to note that it may not fully support alternative methods of receiving updates, such as long polling. With a webhook-centric approach, you would typically only need to inform the library about the domain where it should expect incoming updates, simplifying the configuration process.
 
 # 🚀 Getting started with Reflect Telegram Bot
-Note❗️ Library is created based on spring boot starter dependencies. The minimum version of spring boot is 3.0.0 and the minimum version of java is 17. Please make sure you are using exactly same or higher versions!
+`Note❗️` Library is created based on spring boot starter dependencies. The minimum version of spring boot is 3.0.0 and the minimum version of java is 17. Please make sure you are using exactly same or higher versions!
 
 First of all add dependency to your project with one of options below:
 
 1. Using Maven Central Repository:
 ```xml
- <dependency>
+<dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
     <version>1.0.0</version>
@@ -163,7 +163,7 @@ bot:
   domain: YOUR_DOMAIN  # https://example.com or example.com
   token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot
 ```
-As described above the library works only webhook approach, in case, you want your project would use long polling method, this library can't help you! For local working we highle recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can dowmload it from [here](https://ngrok.com/download)!
+As described above the library works only webhook approach, in case, you want your project would use long polling method, this library can't help you! For local working we highle recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
 
 ---
 
@@ -202,7 +202,7 @@ public enum Language implements UserLanguage {
     }
 }
 ```
-This is simple enum too, but marked as UserLanguage. This helps you to work with multi languges. Here the `code` is one of the static field of `java.util.Locale` class.The `code` must not be wrong!
+This is simple enum, but marked as UserLanguage. This helps you to work with multi languges. Here the `code` is suffix of one of the `messages.properties` file(ex: `messages_ru.properties`).The `code` must not be wrong! You can learn more about Spring's i18 configuration from [here](https://docs.spring.io/spring-boot/docs/2.1.13.RELEASE/reference/html/boot-features-internationalization.html)
 
 ---
 ### **🏁 Step 4️⃣:** Marking User Entity as Telegram User Details
@@ -367,6 +367,10 @@ public class Controller {
     // ...
 }
 ```
+`Note❗`️ Those methods are triggered when the user makes an action to the bot. Inside the method, you can implement the logic to handle the received data. To ensure a coherent user experience, the method should return a `UserState` object representing the user's current state or context. This `UserState` object can store information about the user's last action or interaction.
+
+By consistently returning UserState objects in these mapping methods, you create a structured approach to manage user states, facilitating a more organized and responsive Telegram bot. Customize the logic within each method to suit your bot's specific requirements and enhance the overall user interaction. 🚀🤖
+
 ---
 
 # Congratulations! 🎉
@@ -398,6 +402,84 @@ The **Unit Bot** example project showcases a Telegram bot integrated with Spotif
 2. **Community Engagement:** Join community forums or channels associated with the library. Engage with other developers, share your experiences, and seek support or insights.
 
 3. **Feedback:** If you have any thoughts or suggestions about the documentation, consider providing feedback. Your input could contribute to the continuous improvement of the library's resources.
+
+---
+
+# Key Features 🚀
+
+## Redis-based Auto-Configuration
+
+Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
+```yaml
+data:
+  redis:
+    host: REDIS_HOST
+    port: REDIS_PORT
+    repositories:
+      enabled: true   # Default: false
+```
+
+## i18n Support
+Now, your bot is ready to speak multiple languages, providing a personalized experience for users around the world! 🌍🌐
+```yml
+bot:
+  # Other bot configurations...
+  i18:
+    enabled: true   # Default: false
+    key:
+      back-button:  # if(bot.i18.enabled) "back-button" elae "⬅️ Back"
+      contact-button: # if(bot.i18.enabled) "contact-button" elae "📲 My Phone" 
+      location-button: # if(bot.i18.enabled) "location-button " elae "🗺 My Location" 
+      back-button-prefix: BACK_
+```
+
+`Note❗`️ When enabling i18n support (`bot.i18.enabled: true`), it's essential to integrate Spring's `messages.properties` for efficient management of localized messages. Ensure that you have a `messages.properties` file in your project's resources with translations for the declared keys. 
+
+In the provided example, the keys such as `back-button`, `contact-button`, and `location-button` serve as placeholders for the corresponding localized messages. These keys should be defined in your message.properties file, each associated with the translated text for different languages.
+
+Ensure that your `message.properties` file includes entries like:
+```
+back-button=Go Back
+contact-button=Send Contact
+location-button=Share Location
+```
+
+# Mapping Annotations and Target Fields 📌
+
+In the Reflect Telegram Bot Library, mapping annotations play a crucial role in associating methods with specific types of incoming messages or events. Each mapping annotation comes with its own designated `target` field, providing the required type as a method parameter.
+
+## Example: Contact Mapping
+
+Consider the `@ContactMapping` annotation:
+
+```java
+@ContactMapping(target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
+public UserState locationMapping(HashedUser user, String phoneNumber){
+    // ....
+}
+```
+In this example, the @ContactMapping annotation specifies that this method is triggered when the user sends a contact to the bot. The Contact's phone number object is declared as a parameter, and it is provided through the target field of the annotation. This ensures that the method receives the necessary data type for handling location-related interactions.
+
+---
+
+# Mapping Annotations and Chat Types 🌐💬
+
+In the Reflect Telegram Bot Library, mapping annotations are equipped with a powerful feature – the `chatTypes` field. This field allows you to explicitly declare the chat types for which a particular method should be triggered. The default chat type is set to private.
+
+## Example: Location Mapping
+
+Consider the `@LocationMapping` annotation:
+
+```java
+@LocationMapping(chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP})
+public UserState locationMapping(HashedUser user, Location location){
+    // ....
+}
+```
+In this example, the @LocationMapping annotation is configured to catch only location events from group and supergroup chats. By setting chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP}, the method locationMapping will only be triggered for location messages in these specified chat types.
+
+---
+
 
 Kudos on completing this milestone! Your commitment to learning and growing as a developer is truly inspiring. Best of luck with your Telegram bot endeavors! 🌟
 

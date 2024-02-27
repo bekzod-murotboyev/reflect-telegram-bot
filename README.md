@@ -407,6 +407,88 @@ The **Unit Bot** example project showcases a Telegram bot integrated with Spotif
 
 # Key Features 🚀
 
+# Mapping Annotations and Regular Expression Checks 🧐📝
+
+In the Reflect Telegram Bot Library, mapping annotations come equipped with a versatile feature – the `regexp` field. This field allows you to define a regular expression (regexp) pattern that incoming text messages must match for a particular method to be triggered.
+
+## Example: Text Mapping
+
+Consider the `@TextMapping` annotation:
+
+```java
+@TextMapping(regexp = "/start")
+public UserState startMapping(HashedUser user){
+    // ....
+}
+```
+In this example, the `@TextMapping` annotation is configured with `regexp = "/start"`. This means that the `startMapping` method will only be triggered when a user sends a text message containing `/start`. The regular expression acts as a filter, ensuring that the method responds specifically to messages that match the defined pattern.
+
+## Example: Callback Query Mapping
+
+Consider the `@CallbackQueryMapping` annotation:
+
+```java
+@CallbackQueryMapping(dataRegexp = "^option_\\d+$", target = CallbackQueryMapping.CallbackQueryMappingTarget.QUERY_DATA)
+public UserState optionMapping(HashedUser user, String optionData){
+    // ....
+}
+```
+Here, the @CallbackQueryMapping annotation uses dataRegexp = "^option_\\d+$". The method optionMapping will be invoked when a callback query is received with data matching the specified regular expression, such as "option_1", "option_2", and so on.
+
+By utilizing the regexp or dataRegexp field in mapping annotations, you can enforce specific text patterns, adding a layer of control and customization to your bot's interaction logic. This feature is particularly useful when you want methods to respond selectively based on the content of incoming messages. 🧐📝
+
+# Mapping Annotations and User States 🚦🔍
+
+Within the Reflect Telegram Bot Library, mapping annotations include a powerful feature – the `states` field. This field provides the capability to check the user's state every time they make a request. The default value for `states` is an empty array, meaning that user state checking is not enforced by default.
+
+## Example: Text Mapping
+
+Consider the `@TextMapping` annotation:
+
+```java
+@TextMapping(regexp = "/start", states = {State.INIT})
+public UserState startMapping(HashedUser user){
+    // ....
+}
+```
+In this example, the @TextMapping annotation includes states = {State.INIT}. This configuration ensures that the startMapping method will only be triggered if the user is in the "INIT" state. The states field acts as a filter, allowing methods to respond selectively based on the user's current state.
+
+By leveraging the states field in mapping annotations, you introduce a dynamic element to your bot's interaction logic. Methods can be configured to respond conditionally based on the user's state, providing a tailored and context-aware user experience. 🚦🔍
+
+# Mapping Annotations and Target Fields 📌
+
+In the Reflect Telegram Bot Library, mapping annotations play a crucial role in associating methods with specific types of incoming messages or events. Each mapping annotation comes with its own designated `target` field, providing the required type as a method parameter.
+
+## Example: Contact Mapping
+
+Consider the `@ContactMapping` annotation:
+
+```java
+@ContactMapping(target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
+public UserState locationMapping(HashedUser user, String phoneNumber){
+    // ....
+}
+```
+In this example, the @ContactMapping annotation specifies that this method is triggered when the user sends a contact to the bot. The Contact's phone number object is declared as a parameter, and it is provided through the target field of the annotation. This ensures that the method receives the necessary data type for handling location-related interactions.
+
+---
+
+# Mapping Annotations and Chat Types 🌐💬
+
+In the Reflect Telegram Bot Library, mapping annotations are equipped with a powerful feature – the `chatTypes` field. This field allows you to explicitly declare the chat types for which a particular method should be triggered. The default chat type is set to private.
+
+## Example: Location Mapping
+
+Consider the `@LocationMapping` annotation:
+
+```java
+@LocationMapping(chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP})
+public UserState locationMapping(HashedUser user, Location location){
+    // ....
+}
+```
+In this example, the @LocationMapping annotation is configured to catch only location events from group and supergroup chats. By setting chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP}, the method locationMapping will only be triggered for location messages in these specified chat types.
+
 ## Redis-based Auto-Configuration
 
 Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
@@ -443,40 +525,6 @@ back-button=Go Back
 contact-button=Send Contact
 location-button=Share Location
 ```
-
-# Mapping Annotations and Target Fields 📌
-
-In the Reflect Telegram Bot Library, mapping annotations play a crucial role in associating methods with specific types of incoming messages or events. Each mapping annotation comes with its own designated `target` field, providing the required type as a method parameter.
-
-## Example: Contact Mapping
-
-Consider the `@ContactMapping` annotation:
-
-```java
-@ContactMapping(target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
-public UserState locationMapping(HashedUser user, String phoneNumber){
-    // ....
-}
-```
-In this example, the @ContactMapping annotation specifies that this method is triggered when the user sends a contact to the bot. The Contact's phone number object is declared as a parameter, and it is provided through the target field of the annotation. This ensures that the method receives the necessary data type for handling location-related interactions.
-
----
-
-# Mapping Annotations and Chat Types 🌐💬
-
-In the Reflect Telegram Bot Library, mapping annotations are equipped with a powerful feature – the `chatTypes` field. This field allows you to explicitly declare the chat types for which a particular method should be triggered. The default chat type is set to private.
-
-## Example: Location Mapping
-
-Consider the `@LocationMapping` annotation:
-
-```java
-@LocationMapping(chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP})
-public UserState locationMapping(HashedUser user, Location location){
-    // ....
-}
-```
-In this example, the @LocationMapping annotation is configured to catch only location events from group and supergroup chats. By setting chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP}, the method locationMapping will only be triggered for location messages in these specified chat types.
 
 ---
 

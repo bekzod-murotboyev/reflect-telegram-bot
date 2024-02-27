@@ -487,5 +487,14 @@ Kudos on completing this milestone! Your commitment to learning and growing as a
 
 ---
 *Feel free to customize the message based on your preferences or the specific details of the Telegram bot library you've been exploring.*
+
+
+*This documentation is proudly developed and maintained by [Bekzodbek Murotboyev!](https://www.linkedin.com/in/bekzodbek-murotboyev/)*
+
+*Connect on [GitHub](https://github.com/bekzod-murotboyev)*
+
+*Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
+
+*Feel free to reach out, ask questions, or provide feedback.*
         
 

@@ -489,6 +489,48 @@ public UserState locationMapping(HashedUser user, Location location){
 ```
 In this example, the @LocationMapping annotation is configured to catch only location events from group and supergroup chats. By setting chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP}, the method locationMapping will only be triggered for location messages in these specified chat types.
 
+---
+
+## Enhanced Messaging with Sender Object 📤
+The library introduces a powerful component, `io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender`, designed to streamline the process of sending various types of messages to users on the Telegram platform.
+```java
+import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
+import io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender;
+import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.utils.enums.KeyboardType;
+import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import lombok.RequiredArgsConstructor;
+
+@BotController
+@RequiredArgsConstructor
+public class RegisterController {
+    
+    private final Sender sender;
+
+    @TextMapping(regexp = "/start")
+    public UserState showStartMenu(HashedUser user) {
+        sender.sendMessage(...);  // uses for sending SendMessage
+        sender.sendWebMessage(...); // uses for sending SendMessage with web page button
+        sender.editMessageText(...); // uses for sending EditMessageText
+        sender.editWebMessageText(...); // uses for sending EditMessageText with web page button
+        sender.sendPhoto(...); // uses for sending SendPhoto
+        sender.sendDocument(...); // uses for sending SendDocument
+        sender.sendAudio(...); // uses for sending SendAudio
+        sender.sendVoice(...); // uses for sending SendVoice
+        sender.sendVideo(...); // uses for sending SendVideo
+        sender.sendInvoice(...); // uses for sending SendInvoice
+        :
+        
+        ...
+    }
+    
+}
+```
+Those methods encapsulates the complexities of sending messages, making it straightforward for developers to incorporate various communication features into their Telegram bot applications. Whether it's responding to user queries, providing updates, or delivering important information, sender methods empowers developers to enhance the user experience effortlessly.
+
+---
+
 ## Redis-based Auto-Configuration
 
 Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
@@ -500,6 +542,8 @@ data:
     repositories:
       enabled: true   # Default: false
 ```
+
+---
 
 ## i18n Support
 Now, your bot is ready to speak multiple languages, providing a personalized experience for users around the world! 🌍🌐

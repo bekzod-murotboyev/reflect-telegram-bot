@@ -407,6 +407,20 @@ The **Unit Bot** example project showcases a Telegram bot integrated with Spotif
 
 # Key Features 🚀
 
+## Redis-based Auto-Configuration
+
+Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
+```yaml
+data:
+  redis:
+    host: REDIS_HOST
+    port: REDIS_PORT
+    repositories:
+      enabled: true   # Default: false
+```
+
+---
+
 ## Mapping Annotations and Regular Expression Checks 🧐📝
 
 In the Reflect Telegram Bot Library, mapping annotations come equipped with a versatile feature – the `regexp` field. This field allows you to define a regular expression (regexp) pattern that incoming text messages must match for a particular method to be triggered.
@@ -491,6 +505,33 @@ In this example, the @LocationMapping annotation is configured to catch only loc
 
 ---
 
+## i18n Support
+Now, your bot is ready to speak multiple languages, providing a personalized experience for users around the world! 🌍🌐
+```yml
+bot:
+  # Other bot configurations...
+  i18:
+    enabled: true   # Default: false
+    key:
+      back-button:  # if(bot.i18.enabled) "back-button" elae "⬅️ Back"
+      contact-button: # if(bot.i18.enabled) "contact-button" elae "📲 My Phone" 
+      location-button: # if(bot.i18.enabled) "location-button " elae "🗺 My Location" 
+      back-button-prefix: BACK_
+```
+
+`Note❗`️ When enabling i18n support (`bot.i18.enabled: true`), it's essential to integrate Spring's `messages.properties` for efficient management of localized messages. Ensure that you have a `messages.properties` file in your project's resources with translations for the declared keys. 
+
+In the provided example, the keys such as `back-button`, `contact-button`, and `location-button` serve as placeholders for the corresponding localized messages. These keys should be defined in your message.properties file, each associated with the translated text for different languages.
+
+Ensure that your `message.properties` file includes entries like:
+```
+back-button=Go Back
+contact-button=Send Contact
+location-button=Share Location
+```
+
+---
+
 ## Enhanced Messaging with Sender Object 📤
 The library introduces a powerful component, `io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender`, designed to streamline the process of sending various types of messages to users on the Telegram platform.
 ```java
@@ -529,46 +570,40 @@ public class RegisterController {
 ```
 Those methods encapsulates the complexities of sending messages, making it straightforward for developers to incorporate various communication features into their Telegram bot applications. Whether it's responding to user queries, providing updates, or delivering important information, sender methods empowers developers to enhance the user experience effortlessly.
 
----
+For developers looking to send custom messages in their Telegram bot applications, the library provides a powerful tool — `TelegramFeignMapper`. This object enables the direct transmission of custom messages, offering a flexible approach to communication beyond standard text messages.
+```java
+import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
+import io.github.reflectframework.reflecttelegrambot.network.feignclients.telegram.TelegramFeignMapper;
+import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.utils.enums.KeyboardType;
+import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendDocument;
+import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import lombok.RequiredArgsConstructor;
 
-## Redis-based Auto-Configuration
+@BotController
+@RequiredArgsConstructor
+public class RegisterController {
+    
+    private final TelegramFeignMapper feignMapper;
 
-Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
-```yaml
-data:
-  redis:
-    host: REDIS_HOST
-    port: REDIS_PORT
-    repositories:
-      enabled: true   # Default: false
+    @TextMapping(regexp = "/start")
+    public UserState showStartMenu(HashedUser user) {
+        feignMapper.sendMessage(new SendMessage(...));  // uses for sending SendMessage
+        feignMapper.editMessageText(new EditMessageText(...)); // uses for sending EditMessageText
+        feignMapper.sendPhoto(new SendPhoto(...)); // uses for sending SendPhoto
+        feignMapper.sendDocument(new SendDocument(...)); // uses for sending SendDocument
+        :
+        
+        ...
+    }
+    
+}
 ```
-
----
-
-## i18n Support
-Now, your bot is ready to speak multiple languages, providing a personalized experience for users around the world! 🌍🌐
-```yml
-bot:
-  # Other bot configurations...
-  i18:
-    enabled: true   # Default: false
-    key:
-      back-button:  # if(bot.i18.enabled) "back-button" elae "⬅️ Back"
-      contact-button: # if(bot.i18.enabled) "contact-button" elae "📲 My Phone" 
-      location-button: # if(bot.i18.enabled) "location-button " elae "🗺 My Location" 
-      back-button-prefix: BACK_
-```
-
-`Note❗`️ When enabling i18n support (`bot.i18.enabled: true`), it's essential to integrate Spring's `messages.properties` for efficient management of localized messages. Ensure that you have a `messages.properties` file in your project's resources with translations for the declared keys. 
-
-In the provided example, the keys such as `back-button`, `contact-button`, and `location-button` serve as placeholders for the corresponding localized messages. These keys should be defined in your message.properties file, each associated with the translated text for different languages.
-
-Ensure that your `message.properties` file includes entries like:
-```
-back-button=Go Back
-contact-button=Send Contact
-location-button=Share Location
-```
+Utilizing `TelegramFeignMapper`, developers gain the ability to transmit messages with custom structures or additional fields tailored to their specific requirements. This facilitates the integration of diverse message types, such as media files, interactive buttons, or any other custom content.
 
 ---
 

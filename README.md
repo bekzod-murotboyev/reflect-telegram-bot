@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.0.0) 🤖
+# Reflect Telegram Bot Library (Version 1.1.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -132,8 +132,6 @@ Before you embark on this coding journey, dive into the library's documentation 
 # ⚡**Quick Start**
 The library `io.github.reflectframework:reflect-telegram-bot` is designed to specifically operate with the Telegram bot webhook method. A webhook is a mechanism where incoming messages and updates are sent directly to a specified URL in real-time.
 
-If you choose to use this particular library, it's important to note that it may not fully support alternative methods of receiving updates, such as long polling. With a webhook-centric approach, you would typically only need to inform the library about the domain where it should expect incoming updates, simplifying the configuration process.
-
 # 🚀 Getting started with Reflect Telegram Bot
 `Note❗️` Library is created based on spring boot starter dependencies. The minimum version of spring boot is 3.0.0 and the minimum version of java is 17. Please make sure you are using exactly same or higher versions!
 
@@ -144,26 +142,28 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 2. Using Gradle(Short): 
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.0.0'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.1.0'
 ```
 3. Using Gradle(Kotlin): 
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.0.0")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.1.0")
 ```
 ---
 
 ### **🏁 Step 1️⃣:** Setting required credentials via application.yml file
 ```yaml
 bot:
-  domain: YOUR_DOMAIN  # https://example.com or example.com
-  token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot
+  production-mode: false  # Default 'false', default uses telegram long polling method, if specified 'true', telegram webhook method will be auto configured
+  domain: YOUR_DOMAIN  # https://example.com or example.com; Specify this property when 'production-mode' marked as 'true';
+  token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot;
+  username: YOUR_BOT_USERNAME  # Specify this property when 'production-mode' marked as 'false'; 
 ```
-As described above the library works only webhook approach, in case, you want your project would use long polling method, this library can't help you! For local working we highle recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
+In case, you want to check production mode locally, we highle recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
 
 ---
 
@@ -460,7 +460,7 @@ Within the Reflect Telegram Bot Library, mapping annotations include a powerful 
 Consider the `@TextMapping` annotation:
 
 ```java
-@TextMapping(regexp = "/start", states = {State.INIT})
+@TextMapping(regexp = "/start", states = {State.Fields.INIT})
 public UserState startMapping(HashedUser user){
     // ....
 }
@@ -551,16 +551,16 @@ public class RegisterController {
 
     @TextMapping(regexp = "/start")
     public UserState showStartMenu(HashedUser user) {
-        sender.sendMessage(...);  // uses for sending SendMessage
-        sender.sendWebMessage(...); // uses for sending SendMessage with web page button
-        sender.editMessageText(...); // uses for sending EditMessageText
-        sender.editWebMessageText(...); // uses for sending EditMessageText with web page button
-        sender.sendPhoto(...); // uses for sending SendPhoto
-        sender.sendDocument(...); // uses for sending SendDocument
-        sender.sendAudio(...); // uses for sending SendAudio
-        sender.sendVoice(...); // uses for sending SendVoice
-        sender.sendVideo(...); // uses for sending SendVideo
-        sender.sendInvoice(...); // uses for sending SendInvoice
+        sender.sendMessage(...);  // used to send a SendMessage
+        sender.sendWebMessage(...); // used to send a SendMessage with web page button
+        sender.editMessageText(...); // used to send a EditMessageText
+        sender.editWebMessageText(...); // used to send a EditMessageText with web page button
+        sender.sendPhoto(...); // used to send a SendPhoto
+        sender.sendDocument(...); // used to send a SendDocument
+        sender.sendAudio(...); // used to send a SendAudio
+        sender.sendVoice(...); // used to send a SendVoice
+        sender.sendVideo(...); // used to send a SendVideo
+        sender.sendInvoice(...); // used to send a SendInvoice
         :
         
         ...
@@ -570,10 +570,10 @@ public class RegisterController {
 ```
 Those methods encapsulates the complexities of sending messages, making it straightforward for developers to incorporate various communication features into their Telegram bot applications. Whether it's responding to user queries, providing updates, or delivering important information, sender methods empowers developers to enhance the user experience effortlessly.
 
-For developers looking to send custom messages in their Telegram bot applications, the library provides a powerful tool — `TelegramFeignMapper`. This object enables the direct transmission of custom messages, offering a flexible approach to communication beyond standard text messages.
+For developers looking to send custom messages in their Telegram bot applications, the library provides a powerful tool — `Reflector`. This object enables the direct transmission of custom messages, offering a flexible approach to communication beyond standard text messages.
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.network.feignclients.telegram.TelegramFeignMapper;
+import io.github.reflectframework.reflecttelegrambot.network.feignclients.telegram.Reflector;
 import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.utils.enums.KeyboardType;
 import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
@@ -588,14 +588,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RegisterController {
     
-    private final TelegramFeignMapper feignMapper;
+    private final Reflector reflector;
 
     @TextMapping(regexp = "/start")
     public UserState showStartMenu(HashedUser user) {
-        feignMapper.sendMessage(new SendMessage(...));  // uses for sending SendMessage
-        feignMapper.editMessageText(new EditMessageText(...)); // uses for sending EditMessageText
-        feignMapper.sendPhoto(new SendPhoto(...)); // uses for sending SendPhoto
-        feignMapper.sendDocument(new SendDocument(...)); // uses for sending SendDocument
+        reflector.sendMessage(new SendMessage(...));  // used to send a SendMessage
+        reflector.editMessageText(new EditMessageText(...)); // used to send a EditMessageText
+        reflector.sendPhoto(new SendPhoto(...)); // used to send a SendPhoto
+        reflector.sendDocument(new SendDocument(...)); // used to send a SendDocument
+        
+        reflector.getFilePath("fileId"); // used to get file info and full file path
+        reflector.getFile("fileId"); // used to get file content as 'feign.Response'
         :
         
         ...
@@ -603,7 +606,7 @@ public class RegisterController {
     
 }
 ```
-Utilizing `TelegramFeignMapper`, developers gain the ability to transmit messages with custom structures or additional fields tailored to their specific requirements. This facilitates the integration of diverse message types, such as media files, interactive buttons, or any other custom content.
+Utilizing `reflector`, developers gain the ability to transmit messages with custom structures or additional fields tailored to their specific requirements. This facilitates the integration of diverse message types, such as media files, interactive buttons, or any other custom content.
 
 ---
 

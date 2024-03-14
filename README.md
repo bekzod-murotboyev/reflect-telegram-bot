@@ -513,9 +513,9 @@ bot:
   i18:
     enabled: true   # Default: false
     key:
-      back-button:  # if(bot.i18.enabled) "back-button" elae "⬅️ Back"
-      contact-button: # if(bot.i18.enabled) "contact-button" elae "📲 My Phone" 
-      location-button: # if(bot.i18.enabled) "location-button " elae "🗺 My Location" 
+      back-button:  # if(bot.i18.enabled) "back-button" else "⬅️ Back"
+      contact-button: # if(bot.i18.enabled) "contact-button" else "📲 My Phone" 
+      location-button: # if(bot.i18.enabled) "location-button " else "🗺 My Location" 
       back-button-prefix: BACK_
 ```
 

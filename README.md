@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.1.0) 🤖
+# Reflect Telegram Bot Library (Version 1.1.1) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -9,7 +9,7 @@ This library provides a high-level abstraction over Telegram bot API methods. Sa
 
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender;
+import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.utils.enums.KeyboardType;
 import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
@@ -37,7 +37,7 @@ Handle incoming messages and events effortlessly! The library adopts an event-dr
 
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender;
+import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotations.mappings.ContactMapping;
 import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
@@ -65,7 +65,7 @@ Boost your bot's resilience with built-in error handling. No more stressing over
 
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender;
+import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
@@ -93,7 +93,7 @@ Keep your codebase as sleek as your bot's interactions! The library encourages c
 
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender;
+import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
@@ -142,16 +142,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 2. Using Gradle(Short): 
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.1.0'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.1.1'
 ```
 3. Using Gradle(Kotlin): 
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.1.0")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.1.1")
 ```
 ---
 
@@ -536,7 +536,7 @@ location-button=Share Location
 The library introduces a powerful component, `io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender`, designed to streamline the process of sending various types of messages to users on the Telegram platform.
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender;
+import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.utils.enums.KeyboardType;
 import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;

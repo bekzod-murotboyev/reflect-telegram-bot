@@ -158,7 +158,7 @@ implementation("io.github.reflectframework:reflect-telegram-bot:1.1.1")
 ### **🏁 Step 1️⃣:** Setting required credentials via application.yml file
 ```yaml
 bot:
-  production-mode: false  # Default 'false', default uses telegram long polling method, if specified 'true', telegram webhook method will be auto configured
+  production-mode: false  # Default 'false', default uses telegram long polling method, if specified 'true', telegram webhook method will be autoconfigured
   domain: YOUR_DOMAIN  # https://example.com or example.com; Specify this property when 'production-mode' marked as 'true';
   token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot;
   username: YOUR_BOT_USERNAME  # Specify this property when 'production-mode' marked as 'false'; 

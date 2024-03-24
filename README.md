@@ -159,9 +159,9 @@ implementation("io.github.reflectframework:reflect-telegram-bot:1.1.3")
 ```yaml
 bot:
   production-mode: off  # Default 'off or false', default uses telegram long polling method, if specified 'on or true', telegram webhook method will be autoconfigured
-  domain: YOUR_DOMAIN  # https://example.com or example.com; Specify this property when 'production-mode' marked as 'true';
+  domain: YOUR_DOMAIN  # https://example.com or example.com; Specify this property when 'production-mode' marked as 'on' or 'true';
   token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot;
-  username: YOUR_BOT_USERNAME  # Specify this property when 'production-mode' marked as 'false'; 
+  username: YOUR_BOT_USERNAME  # Specify this property when 'production-mode' marked as 'off' or 'false'; 
 ```
 In case, you want to check production mode locally, we highle recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
 

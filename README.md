@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.1.4) 🤖
+# Reflect Telegram Bot Library (Version 1.1.5) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -142,16 +142,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5</version>
 </dependency>
 ```
 2. Using Gradle(Short): 
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.1.4'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.1.5'
 ```
 3. Using Gradle(Kotlin): 
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.1.4")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.1.5")
 ```
 ---
 
@@ -407,7 +407,7 @@ The **Unit Bot** example project showcases a Telegram bot integrated with Spotif
 
 # Key Features 🚀
 
-## Redis-based Auto-Configuration
+## Redis based Auto Configuration
 
 Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
 ```yaml
@@ -425,7 +425,7 @@ data:
 
 In the Reflect Telegram Bot Library, mapping annotations come equipped with a versatile feature – the `regexp` field. This field allows you to define a regular expression (regexp) pattern that incoming text messages must match for a particular method to be triggered.
 
-### Example: Text Mapping
+#### Example: Text Mapping
 
 Consider the `@TextMapping` annotation:
 
@@ -437,7 +437,7 @@ public UserState startMapping(HashedUser user){
 ```
 In this example, the `@TextMapping` annotation is configured with `regexp = "/start"`. This means that the `startMapping` method will only be triggered when a user sends a text message containing `/start`. The regular expression acts as a filter, ensuring that the method responds specifically to messages that match the defined pattern.
 
-### Example: Callback Query Mapping
+#### Example: Callback Query Mapping
 
 Consider the `@CallbackQueryMapping` annotation:
 
@@ -451,11 +451,42 @@ Here, the @CallbackQueryMapping annotation uses dataRegexp = "^option_\\d+$". Th
 
 By utilizing the regexp or dataRegexp field in mapping annotations, you can enforce specific text patterns, adding a layer of control and customization to your bot's interaction logic. This feature is particularly useful when you want methods to respond selectively based on the content of incoming messages. 🧐📝
 
+## Mapping Annotations and Dynamic Regular Expression Translation  🌟✨
+This feature is particularly useful in applications that need to support multiple languages or require dynamic handling of regular expressions based on user context.
+
+#### Example: Text Mapping
+
+Consider the `@TextMapping` annotation:
+```java
+@TextMapping(regexp = "text-basket", translateRegexp = true)
+public UserState textBasketMapping(HashedUser user){
+    // ....
+}
+```
+
+The `translateTextRegexp` parameter, when set to true, signifies that the regular expression provided in textRegexp should undergo translation. If your application supports multiple languages, translateTextRegexp = true might mean that "text-basket" should be translated to match the user's language preference before applying the regular expression match.
+
+### Special Feature: Prefix and Suffix Translation 🎯🧩
+If you specify a prefix and suffix of  `%`, the library will translate only the content inside the character sequence. The rest of the pattern will be treated as a regular expression, maintaining its integrity.
+
+#### Example: Callback Query Mapping
+Consider the `@CallbackQueryMapping` annotation:
+```java
+@CallbackQueryMapping(textRegexp = "^%option%[\\d]*", translateTextRegexp = true)
+public UserState optionMapping(HashedUser user, String optionData){
+    // ....
+}
+```
+In this example, only `option_` will be translated based on your i18n settings, while the `^` and `[\\d]*` symbols will be retained as part of the regular expression. This feature ensures that your regex patterns remain precise and functional while supporting multiple languages! 🌐🗣️
+
+Embrace the magic of seamless text translation within your regex patterns, making your bot smarter and more user-friendly across different languages! 🌍💬✨
+
+
 ## Mapping Annotations and User States 🚦🔍
 
 Within the Reflect Telegram Bot Library, mapping annotations include a powerful feature – the `states` field. This field provides the capability to check the user's state every time they make a request. The default value for `states` is an empty array, meaning that user state checking is not enforced by default.
 
-### Example: Text Mapping
+#### Example: Text Mapping
 
 Consider the `@TextMapping` annotation:
 
@@ -473,7 +504,7 @@ By leveraging the states field in mapping annotations, you introduce a dynamic e
 
 In the Reflect Telegram Bot Library, mapping annotations play a crucial role in associating methods with specific types of incoming messages or events. Each mapping annotation comes with its own designated `target` field, providing the required type as a method parameter.
 
-### Example: Contact Mapping
+#### Example: Contact Mapping
 
 Consider the `@ContactMapping` annotation:
 
@@ -491,7 +522,7 @@ In this example, the @ContactMapping annotation specifies that this method is tr
 
 In the Reflect Telegram Bot Library, mapping annotations are equipped with a powerful feature – the `chatTypes` field. This field allows you to explicitly declare the chat types for which a particular method should be triggered. The default chat type is set to private.
 
-### Example: Location Mapping
+#### Example: Location Mapping
 
 Consider the `@LocationMapping` annotation:
 

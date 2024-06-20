@@ -477,7 +477,7 @@ public UserState optionMapping(HashedUser user, String optionData){
     // ....
 }
 ```
-In this example, only `option_` will be translated based on your i18n settings, while the `^` and `[\\d]*` symbols will be retained as part of the regular expression. This feature ensures that your regex patterns remain precise and functional while supporting multiple languages! 🌐🗣️
+In this example, only `option` will be translated based on your i18n settings, while the `^` and `[\\d]*` symbols will be retained as part of the regular expression. This feature ensures that your regex patterns remain precise and functional while supporting multiple languages! 🌐🗣️
 
 Embrace the magic of seamless text translation within your regex patterns, making your bot smarter and more user-friendly across different languages! 🌍💬✨
 

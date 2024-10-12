@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.1.6) 🤖
+# Reflect Telegram Bot Library (Version 1.2.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -8,12 +8,12 @@ Developing Telegram bots in Java is a breeze with `io.github.reflectframework:re
 This library provides a high-level abstraction over Telegram bot API methods. Say goodbye to tedious low-level details and focus on your bot's brilliance! 🌟
 
 ```java
-import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.utils.enums.KeyboardType;
-import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.util.enums.KeyboardType;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController
@@ -36,11 +36,11 @@ public class RegisterController {
 Handle incoming messages and events effortlessly! The library adopts an event-driven model and magical abstractions, making your bot a responsive chatterbox. 📬
 
 ```java
-import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.ContactMapping;
-import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController
@@ -64,11 +64,11 @@ public class RegisterController {
 Boost your bot's resilience with built-in error handling. No more stressing over API hiccups – let the library handle it like a pro! 💪
 
 ```java
-import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController(order = Integer.MAX_VALUE)
@@ -92,11 +92,11 @@ Keep your codebase as sleek as your bot's interactions! The library encourages c
 
 
 ```java
-import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController(order = 1)
@@ -142,16 +142,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.1.6</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 2. Using Gradle(Short): 
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.1.6'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.2.0'
 ```
 3. Using Gradle(Kotlin): 
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.1.6")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.2.0")
 ```
 ---
 
@@ -169,7 +169,7 @@ In case, you want to check production mode locally, we highle recommend you to u
 
 ### **🏁 Step 2️⃣:** Creating type for User State as Enum
 ```java
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.experimental.FieldNameConstants;
 
 @FieldNameConstants(onlyExplicitlyIncluded = true)
@@ -185,7 +185,7 @@ This is simple enum, but marked as UserState. This helps to manage users and the
 
 ### **🏁 Step 3️⃣:** Creating type for User Language as Enum  `(Optional)`
 ```java
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserLanguage;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserLanguage;
 
 public enum Language implements UserLanguage {
     EN("en"),
@@ -207,7 +207,7 @@ This is simple enum, but marked as UserLanguage. This helps you to work with mul
 ---
 ### **🏁 Step 4️⃣:** Marking User Entity as Telegram User Details
 ```java
-import io.github.reflectframework.reflecttelegrambot.entities.user.TelegramUserDetails;
+import io.github.reflectframework.reflecttelegrambot.entity.user.TelegramUserDetails;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -267,9 +267,9 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
-import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.entities.user.TelegramUserDetails;
-import io.github.reflectframework.reflecttelegrambot.services.user.TelegramUserDetailsService;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.entity.user.TelegramUserDetails;
+import io.github.reflectframework.reflecttelegrambot.service.user.TelegramUserDetailsService;
 
 @Service
 @RequiredArgsConstructor
@@ -300,7 +300,7 @@ public class UserService implements TelegramUserDetailsService {
     }
 }
 ```
-`io.github.reflectframework.reflecttelegrambot.services.user.TelegramUserDetailsService` is interface that requires to implement three methods as described below:
+`io.github.reflectframework.reflecttelegrambot.service.user.TelegramUserDetailsService` is interface that requires to implement three methods as described below:
  - `public TelegramUserDetails findByChatId(long chatId)` - this method need to search user by `chatId` and return. In case, the user is new `null` must be returned.
  - `public TelegramUserDetails save(@Nonnull User user, long chatId)` - this method need to save a new `org.telegram.telegrambots.meta.api.objects.User` to database. Only called when `public TelegramUserDetails findByChatId(long chatId)` returns `null`.
  - `public void update(@Nonnull HashedUser user)` - this method need to update stored user info when this method called. Changed data come as `io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser` 
@@ -328,14 +328,14 @@ Simply add the `@EnableBot` annotation to your bootstrap class and the necessary
 ### **🏁 Step 7️⃣:** Creating Bot Controller
 _Now you can catch whatever you want with small piece of code, just feel free and work with your business logic!_
 ```java
-import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.CallbackQueryMapping;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.ContactMapping;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.LocationMapping;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.file.PhotoMapping;
-import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.LocationMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.file.PhotoMapping;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
@@ -566,12 +566,12 @@ location-button=Share Location
 ## Enhanced Messaging with Sender Object 📤
 The library introduces a powerful component, `io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender`, designed to streamline the process of sending various types of messages to users on the Telegram platform.
 ```java
-import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.components.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.utils.enums.KeyboardType;
-import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.util.enums.KeyboardType;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController
@@ -603,12 +603,12 @@ Those methods encapsulates the complexities of sending messages, making it strai
 
 For developers looking to send custom messages in their Telegram bot applications, the library provides a powerful tool — `Reflector`. This object enables the direct transmission of custom messages, offering a flexible approach to communication beyond standard text messages.
 ```java
-import io.github.reflectframework.reflecttelegrambot.annotations.BotController;
-import io.github.reflectframework.reflecttelegrambot.network.feignclients.telegram.Reflector;
-import io.github.reflectframework.reflecttelegrambot.annotations.mappings.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.utils.enums.KeyboardType;
-import io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.utils.markers.UserState;
+import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.network.feignclient.telegram.Reflector;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.util.enums.KeyboardType;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendDocument;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

@@ -257,7 +257,7 @@ public class UserEntity implements TelegramUserDetails {
     }
 }
 ```
-`io.github.reflectframework.reflecttelegrambot.entities.user.TelegramUserDetails` is just interface and requires to implement three methods which `getChatId()`, `getState()` and `getLanguage()`. `getLanguage()` is optional and if you down't want to use it, you can just return `null` instead of creating `enum` and storing it to database!
+`io.github.reflectframework.reflecttelegrambot.entities.user.TelegramUserDetails` is just interface and requires to implement three methods which `getChatId()`, `getState()` and `getLanguage()`. `getLanguage()` is optional and if you don't want to use it, you can just return `null` instead of creating `enum` and storing it to database!
 
 ---
 ### **🏁 Step 5️⃣:** Marking User Service as Telegram User Details Service

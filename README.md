@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.2.1) 🤖
+# Reflect Telegram Bot Library (Version 1.3.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -142,16 +142,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.2.1</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 2. Using Gradle(Short): 
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.2.1'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.3.0'
 ```
 3. Using Gradle(Kotlin): 
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.2.1")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.3.0")
 ```
 ---
 
@@ -533,6 +533,82 @@ public UserState locationMapping(HashedUser user, Location location){
 }
 ```
 In this example, the @LocationMapping annotation is configured to catch only location events from group and supergroup chats. By setting chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP}, the method locationMapping will only be triggered for location messages in these specified chat types.
+
+---
+
+## 📦 Handling Media Groups in a Single Method Invocation
+
+The library supports efficient handling of media groups across multiple types (photos, videos, audio, and documents) in a single bot controller method. This eliminates the need to process media files individually, making bulk media handling seamless.
+
+
+The following annotations now support media group queues:
+
+| Annotation       | Mapping Target                                      | Method Parameter       |
+|-----------------|------------------------------------------------|------------------------|
+| `@PhotoMapping`  | `PhotoMapping.PhotoMappingTarget.PHOTO_GROUP_QUEUE`  | `PhotoGroupQueue`  |
+| `@VideoMapping`  | `VideoMapping.VideoMappingTarget.VIDEO_GROUP_QUEUE`  | `VideoGroupQueue`  |
+| `@AudioMapping`  | `AudioMapping.AudioMappingTarget.AUDIO_GROUP_QUEUE`  | `AudioGroupQueue`  |
+| `@DocumentMapping`  | `DocumentMapping.DocumentMappingTarget.DOCUMENT_GROUP_QUEUE`  | `DocumentGroupQueue`  |
+
+
+#### ✅ Example Usage
+
+Below is an example of handling a group of photos, videos, audios and documents:
+
+```java
+@PhotoMapping(target = PhotoMapping.PhotoMappingTarget.PHOTO_GROUP_QUEUE)
+public UserState receiveBulkPhotos(HashedUser user, PhotoGroupQueue queue) {
+    for (PhotoSize photoSize : queue.takeAsList()) {
+        System.out.println(photoSize.getFileId());
+    }
+    return user.getState();
+}
+
+@VideoMapping(target = VideoMapping.VideoMappingTarget.VIDEO_GROUP_QUEUE)
+public UserState receiveBulkVideos(HashedUser user, VideoGroupQueue queue) {
+    for (Video video : queue.takeAsList()) {
+        System.out.println(video.getFileId());
+    }
+    return user.getState();
+}
+
+@AudioMapping(target = AudioMapping.AudioMappingTarget.AUDIO_GROUP_QUEUE)
+public UserState receiveBulkAudio(HashedUser user, AudioGroupQueue queue) {
+    for (Audio audio : queue.takeAsList()) {
+        System.out.println(audio.getFileId());
+    }
+    return user.getState();
+}
+
+@DocumentMapping(target = DocumentMapping.DocumentMappingTarget.DOCUMENT_GROUP_QUEUE)
+public UserState receiveBulkDocuments(HashedUser user, DocumentGroupQueue queue) {
+    for (Document document : queue.takeAsList()) {
+        System.out.println(document.getFileId());
+    }
+    return user.getState();
+}
+```
+
+### ⚙️ Configuring Media Group Scheduler
+
+To manage media group processing more efficiently, the library provides a configurable property for setting the scheduler thread pool size:
+```
+bot:
+  properties:
+    media-group-scheduler-pool-size: 1
+```
+- media-group-scheduler-pool-size: Defines the number of threads allocated for processing media groups.
+- Increasing this value can improve parallel processing but requires sufficient system resources.
+- Default value: 1
+
+### 🛠 Key Benefits
+- Unified Processing: Handle entire media groups in a single method.
+- Simplified Development: No need to track or manage individual media items separately.
+- Efficient Queueing: Media items are automatically grouped and passed as a collection.
+- Configurable Performance: Adjust media group processing concurrency with a dedicated thread pool.
+- State Management: Easily integrate with existing user state handling.
+
+This feature significantly enhances the way Telegram bots process media uploads, making bulk handling easier and more efficient! 🚀
 
 ---
 

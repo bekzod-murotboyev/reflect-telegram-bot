@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.3.0) 🤖
+# Reflect Telegram Bot Library (Version 1.4.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -142,16 +142,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
 </dependency>
 ```
 2. Using Gradle(Short): 
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.3.0'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.4.0'
 ```
 3. Using Gradle(Kotlin): 
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.3.0")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.4.0")
 ```
 ---
 
@@ -540,23 +540,51 @@ In this example, the @LocationMapping annotation is configured to catch only loc
 
 The library supports efficient handling of media groups across multiple types (photos, videos, audio, and documents) in a single bot controller method. This eliminates the need to process media files individually, making bulk media handling seamless.
 
+### 🎯 Supported Media Group Annotations  
 
-The following annotations now support media group queues:
+The following annotations allow bots to receive specific types of media groups in a single method:  
 
-| Annotation       | Mapping Target                                      | Method Parameter       |
-|-----------------|------------------------------------------------|------------------------|
-| `@PhotoMapping`  | `PhotoMapping.PhotoMappingTarget.PHOTO_GROUP_QUEUE`  | `PhotoGroupQueue`  |
-| `@VideoMapping`  | `VideoMapping.VideoMappingTarget.VIDEO_GROUP_QUEUE`  | `VideoGroupQueue`  |
-| `@AudioMapping`  | `AudioMapping.AudioMappingTarget.AUDIO_GROUP_QUEUE`  | `AudioGroupQueue`  |
-| `@DocumentMapping`  | `DocumentMapping.DocumentMappingTarget.DOCUMENT_GROUP_QUEUE`  | `DocumentGroupQueue`  |
+| Annotation               | Method Parameter         | Description |
+|--------------------------|-------------------------|-------------|
+| `@AudioGroupMapping`    | `AudioGroupQueue`      | Handles audio groups |
+| `@DocumentGroupMapping` | `DocumentGroupQueue`   | Handles document groups |
+| `@PhotoGroupMapping`    | `PhotoGroupQueue`      | Handles photo groups |
+| `@VideoGroupMapping`    | `VideoGroupQueue`      | Handles video groups |
 
+These annotations ensure that **each method only receives the corresponding media type**, making media handling more efficient and organized.  
+
+### 🌍 **Universal Media Group Handler**  
+
+For cases where a bot needs to receive **any type of media** in a single method, the new `@MediaGroupMapping` annotation is available:  
+
+| Annotation            | Method Parameter   | Description |
+|----------------------|-------------------|-------------|
+| `@MediaGroupMapping` | `MediaGroupQueue` | Catches any type of media group |
+
+This allows developers to handle mixed media uploads efficiently.  
+
+### 📨 **Handling Media Messages**  
+
+In addition to receiving media groups, all media mapping annotations now support a **target type `MESSAGE`**, which allows methods to accept `MessageGroupQueue`.  
+
+| Annotation               | Target Type  | Method Parameter    | Description |
+|--------------------------|-------------|--------------------|-------------|
+| `@AudioGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles audio messages |
+| `@DocumentGroupMapping` | `MESSAGE`   | `MessageGroupQueue` | Handles document messages |
+| `@PhotoGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles photo messages |
+| `@VideoGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles video messages |
+| `@MediaGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles any media message |
+
+#### 🔹 **What is `MessageGroupQueue`?**  
+- This queue allows developers to **take messages from Telegram updates** rather than just media files.  
+- Provides a **more flexible way** to handle incoming updates from users.  
 
 #### ✅ Example Usage
 
 Below is an example of handling a group of photos, videos, audios and documents:
 
 ```java
-@PhotoMapping(target = PhotoMapping.PhotoMappingTarget.PHOTO_GROUP_QUEUE)
+@PhotoGroupMapping
 public UserState receiveBulkPhotos(HashedUser user, PhotoGroupQueue queue) {
     for (PhotoSize photoSize : queue.takeAsList()) {
         System.out.println(photoSize.getFileId());
@@ -564,7 +592,7 @@ public UserState receiveBulkPhotos(HashedUser user, PhotoGroupQueue queue) {
     return user.getState();
 }
 
-@VideoMapping(target = VideoMapping.VideoMappingTarget.VIDEO_GROUP_QUEUE)
+@VideoGroupMapping
 public UserState receiveBulkVideos(HashedUser user, VideoGroupQueue queue) {
     for (Video video : queue.takeAsList()) {
         System.out.println(video.getFileId());
@@ -572,7 +600,7 @@ public UserState receiveBulkVideos(HashedUser user, VideoGroupQueue queue) {
     return user.getState();
 }
 
-@AudioMapping(target = AudioMapping.AudioMappingTarget.AUDIO_GROUP_QUEUE)
+@AudioGroupMapping
 public UserState receiveBulkAudio(HashedUser user, AudioGroupQueue queue) {
     for (Audio audio : queue.takeAsList()) {
         System.out.println(audio.getFileId());
@@ -580,10 +608,18 @@ public UserState receiveBulkAudio(HashedUser user, AudioGroupQueue queue) {
     return user.getState();
 }
 
-@DocumentMapping(target = DocumentMapping.DocumentMappingTarget.DOCUMENT_GROUP_QUEUE)
+@DocumentGroupMapping
 public UserState receiveBulkDocuments(HashedUser user, DocumentGroupQueue queue) {
     for (Document document : queue.takeAsList()) {
         System.out.println(document.getFileId());
+    }
+    return user.getState();
+}
+
+@MediaGroupMapping
+public UserState receiveBulkMedia(HashedUser user, MediaGroupQueue queue) {
+    for (Media media : queue.takeAsList()) {
+        System.out.println(media.getFileId());
     }
     return user.getState();
 }

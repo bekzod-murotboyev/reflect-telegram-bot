@@ -133,7 +133,7 @@ Before you embark on this coding journey, dive into the library's documentation 
 The library `io.github.reflectframework:reflect-telegram-bot` is designed to specifically operate with the Telegram bot webhook method. A webhook is a mechanism where incoming messages and updates are sent directly to a specified URL in real-time.
 
 # 🚀 Getting started with Reflect Telegram Bot
-`Note❗️` Library is created based on spring boot starter dependencies. The minimum version of spring boot is 3.3.0 and the minimum version of java is 17. Please make sure you are using exactly same or higher versions!
+`Note❗️` Library is created based on spring boot starter dependencies. The minimum version of spring boot is 3.3.0 and the minimum version of java is 21. Please make sure you are using exactly same or higher versions!
 
 First of all add dependency to your project with one of options below:
 

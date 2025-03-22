@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.4.1) 🤖
+# Reflect Telegram Bot Library (Version 1.5.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -142,26 +142,26 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.4.1</version>
+    <version>1.5.0</version>
 </dependency>
 ```
 2. Using Gradle(Short): 
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.4.1'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.5.0'
 ```
 3. Using Gradle(Kotlin): 
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.4.1")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.5.0")
 ```
 ---
 
 ### **🏁 Step 1️⃣:** Setting required credentials via application.yml file
 ```yaml
 bot:
-  production-mode: off  # Default 'off or false', default uses telegram long polling method, if specified 'on or true', telegram webhook method will be autoconfigured
-  domain: YOUR_DOMAIN  # https://example.com or example.com; Specify this property when 'production-mode' marked as 'on' or 'true';
+  mode: development  # By default 'off', in development mode uses telegram long polling method, if specified 'production', telegram webhook method will be autoconfigured
+  domain: YOUR_DOMAIN  # https://example.com or example.com; Specify this property when 'mode' marked as 'production';
   token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot;
-  username: YOUR_BOT_USERNAME  # Specify this property when 'production-mode' marked as 'off' or 'false'; 
+  username: YOUR_BOT_USERNAME  # Specify this property when 'mode' marked as 'development'; 
 ```
 In case, you want to check production mode locally, we highle recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
 
@@ -310,7 +310,7 @@ public class UserService implements TelegramUserDetailsService {
 ```java
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import io.github.reflectframework.reflecttelegrambot.annotations.EnableBot;
+import io.github.reflectframework.reflecttelegrambot.annotation.EnableBot;
 
 @EnableBot
 @SpringBootApplication

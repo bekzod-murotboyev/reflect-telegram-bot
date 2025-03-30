@@ -329,7 +329,7 @@ Simply add the `@EnableBot` annotation to your bootstrap class and the necessary
 
 If your **Spring Boot** application uses **Spring Security**, you need to explicitly allow `POST` requests for the **Telegram Bot Webhook URL**. Otherwise, incoming updates from Telegram may be blocked.  
 
-## ✅ How to Permit the Webhook URL?  
+#### ✅ How to Permit the Webhook URL?  
 
 You can configure your **Spring Security filter chain** to permit `POST` requests to the **Telegram Webhook URL**:  
 

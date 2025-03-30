@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.5.2) 🤖
+# Reflect Telegram Bot Library (Version 1.5.3) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -142,16 +142,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
 </dependency>
 ```
 2. Using Gradle(Short): 
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.5.2'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.5.3'
 ```
 3. Using Gradle(Kotlin): 
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.5.2")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.5.3")
 ```
 ---
 
@@ -325,7 +325,38 @@ public class Application {
 Simply add the `@EnableBot` annotation to your bootstrap class and the necessary configurations will be generated for you!
 
 ---
-### **🏁 Step 7️⃣:** Creating Bot Controller
+### **🏁 Step 7️⃣:** Allowing Telegram Webhook in Spring Security
+
+If your **Spring Boot** application uses **Spring Security**, you need to explicitly allow `POST` requests for the **Telegram Bot Webhook URL**. Otherwise, incoming updates from Telegram may be blocked.  
+
+## ✅ How to Permit the Webhook URL?  
+
+You can configure your **Spring Security filter chain** to permit `POST` requests to the **Telegram Webhook URL**:  
+
+```java
+import static io.github.reflectframework.reflecttelegrambot.util.constant.Constant.TELEGRAM_WEBHOOK_URL; 
+
+@Configuration
+@EnableMethodSecurity
+public class WebSecurityConfiguration {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
+                .requestMatchers(HttpMethod.POST, TELEGRAM_WEBHOOK_URL).permitAll()
+                .anyRequest().authenticated());
+        return http.build();
+    }
+}
+```
+
+
+This ensures proper formatting, readability, and clear instructions for developers. Let me know if you need any tweaks! 😊
+
+
+---
+### **🏁 Step 8️⃣:** Creating Bot Controller
 _Now you can catch whatever you want with small piece of code, just feel free and work with your business logic!_
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotation.BotController;

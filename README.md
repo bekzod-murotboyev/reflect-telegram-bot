@@ -351,10 +351,6 @@ public class WebSecurityConfiguration {
 }
 ```
 
-
-This ensures proper formatting, readability, and clear instructions for developers. Let me know if you need any tweaks! 😊
-
-
 ---
 ### **🏁 Step 8️⃣:** Creating Bot Controller
 _Now you can catch whatever you want with small piece of code, just feel free and work with your business logic!_

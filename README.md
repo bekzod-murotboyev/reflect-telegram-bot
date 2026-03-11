@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.5.6) 🤖
+# Reflect Telegram Bot Library (Version 1.6.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -133,7 +133,7 @@ Before you embark on this coding journey, dive into the library's documentation 
 The library `io.github.reflectframework:reflect-telegram-bot` is designed to specifically operate with the Telegram bot webhook method. A webhook is a mechanism where incoming messages and updates are sent directly to a specified URL in real-time.
 
 # 🚀 Getting started with Reflect Telegram Bot
-`Note❗️` Library is created based on spring boot starter dependencies. The minimum version of spring boot is 3.3.0 and the minimum version of java is 21. Please make sure you are using exactly same or higher versions!
+`Note❗️` The library targets Spring Boot 4.0.3+ and Java 21+. Please use the same or newer versions.
 
 First of all add dependency to your project with one of options below:
 
@@ -142,16 +142,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.5.6</version>
+    <version>1.6.0</version>
 </dependency>
 ```
-2. Using Gradle(Short): 
+2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.5.6'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.0'
 ```
-3. Using Gradle(Kotlin): 
+3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.5.6")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.6.0")
 ```
 ---
 
@@ -163,7 +163,31 @@ bot:
   token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot;
   username: YOUR_BOT_USERNAME  # Specify this property when 'mode' marked as 'development'; 
 ```
-In case, you want to check production mode locally, we highle recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
+Autoconfiguration is enabled by default. You do **not** need `@EnableBot` anymore; just add the dependency and set `bot.*` properties.
+In case, you want to check production mode locally, we highly recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
+
+---
+
+### **🏁 Optional:** Redis (Lettuce, Low-Level)
+If you want session storage in Redis, enable Lettuce-based storage:
+```yaml
+bot:
+  redis:
+    enabled: true
+    host: localhost
+    port: 6379
+    database: 0
+    password: ""
+    ssl: false
+    timeout: PT5S
+    ttl-seconds: 86400   # use -1 to disable TTL
+    key-prefix: "bot:user:"
+    pool:
+      max-active: 8      # use -1 for unlimited
+      max-idle: 8        # use -1 for unlimited
+      min-idle: 0
+      max-wait: PT1S     # negative means wait indefinitely
+```
 
 ---
 
@@ -301,37 +325,18 @@ public class UserService implements TelegramUserDetailsService {
 }
 ```
 `io.github.reflectframework.reflecttelegrambot.service.user.TelegramUserDetailsService` is interface that requires to implement three methods as described below:
- - `public TelegramUserDetails findByChatId(long chatId)` - this method need to search user by `chatId` and return. In case, the user is new `null` must be returned.
- - `public TelegramUserDetails save(@Nonnull User user, long chatId)` - this method need to save a new `org.telegram.telegrambots.meta.api.objects.User` to database. Only called when `public TelegramUserDetails findByChatId(long chatId)` returns `null`.
- - `public void update(@Nonnull HashedUser user)` - this method need to update stored user info when this method called. Changed data come as `io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser` 
- 
----
-### **🏁 Step 6️⃣:** Enable `io.github.reflectframework:reflect-telegram-bot` auto configurations
-```java
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import io.github.reflectframework.reflecttelegrambot.annotation.EnableBot;
-
-@EnableBot
-@SpringBootApplication
-public class Application {
-
-    public static void main(String[] args) {
-        SpringApplication.run(UnitBotApplication.class, args);
-    }
-
-}
-```
-Simply add the `@EnableBot` annotation to your bootstrap class and the necessary configurations will be generated for you!
+- `public TelegramUserDetails findByChatId(long chatId)` - this method need to search user by `chatId` and return. In case, the user is new `null` must be returned.
+- `public TelegramUserDetails save(@Nonnull User user, long chatId)` - this method need to save a new `org.telegram.telegrambots.meta.api.objects.User` to database. Only called when `public TelegramUserDetails findByChatId(long chatId)` returns `null`.
+- `public void update(@Nonnull HashedUser user)` - this method need to update stored user info when this method called. Changed data come as `io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser`
 
 ---
-### **🏁 Step 7️⃣:** Allowing Telegram Webhook in Spring Security
+### **🏁 Step 6️⃣:** Allowing Telegram Webhook in Spring Security
 
-If your **Spring Boot** application uses **Spring Security**, you need to explicitly allow `POST` requests for the **Telegram Bot Webhook URL**. Otherwise, incoming updates from Telegram may be blocked.  
+If your **Spring Boot** application uses **Spring Security**, you need to explicitly allow `POST` requests for the **Telegram Bot Webhook URL**. Otherwise, incoming updates from Telegram may be blocked.
 
-#### ✅ How to Permit the Webhook URL?  
+#### ✅ How to Permit the Webhook URL?
 
-You can configure your **Spring Security filter chain** to permit `POST` requests to the **Telegram Webhook URL**:  
+You can configure your **Spring Security filter chain** to permit `POST` requests to the **Telegram Webhook URL**:
 
 ```java
 import static io.github.reflectframework.reflecttelegrambot.util.constant.Constant.TELEGRAM_WEBHOOK_URL; 
@@ -434,16 +439,26 @@ The **Unit Bot** example project showcases a Telegram bot integrated with Spotif
 
 # Key Features 🚀
 
-## Redis based Auto Configuration
+## Redis (Lettuce, Low-Level)
 
-Harness the power of Redis for seamless state management and caching with the library's built-in auto-configuration. Store user states, preferences, and more in Redis, enhancing the efficiency of your Telegram bot. Enable it by setting `data.redis.repositories.enabled: true` in your YAML configuration:
+The library uses a lightweight Lettuce client. Enable it via:
 ```yaml
-data:
+bot:
   redis:
+    enabled: true
     host: REDIS_HOST
     port: REDIS_PORT
-    repositories:
-      enabled: true   # Default: false
+    database: 0
+    password: ""
+    ssl: false
+    timeout: PT5S
+    ttl-seconds: 86400   # use -1 to disable TTL
+    key-prefix: "bot:user:"
+    pool:
+      max-active: 8      # use -1 for unlimited
+      max-idle: 8        # use -1 for unlimited
+      min-idle: 0
+      max-wait: PT1S     # negative means wait indefinitely
 ```
 
 ---
@@ -567,9 +582,9 @@ In this example, the @LocationMapping annotation is configured to catch only loc
 
 The library supports efficient handling of media groups across multiple types (photos, videos, audio, and documents) in a single bot controller method. This eliminates the need to process media files individually, making bulk media handling seamless.
 
-### 🎯 Supported Media Group Annotations  
+### 🎯 Supported Media Group Annotations
 
-The following annotations allow bots to receive specific types of media groups in a single method:  
+The following annotations allow bots to receive specific types of media groups in a single method:
 
 | Annotation               | Method Parameter         | Description |
 |--------------------------|-------------------------|-------------|
@@ -578,21 +593,21 @@ The following annotations allow bots to receive specific types of media groups i
 | `@PhotoGroupMapping`    | `PhotoGroupQueue`      | Handles photo groups |
 | `@VideoGroupMapping`    | `VideoGroupQueue`      | Handles video groups |
 
-These annotations ensure that **each method only receives the corresponding media type**, making media handling more efficient and organized.  
+These annotations ensure that **each method only receives the corresponding media type**, making media handling more efficient and organized.
 
-### 🌍 **Universal Media Group Handler**  
+### 🌍 **Universal Media Group Handler**
 
-For cases where a bot needs to receive **any type of media** in a single method, the new `@MediaGroupMapping` annotation is available:  
+For cases where a bot needs to receive **any type of media** in a single method, the new `@MediaGroupMapping` annotation is available:
 
 | Annotation            | Method Parameter   | Description |
 |----------------------|-------------------|-------------|
 | `@MediaGroupMapping` | `MediaGroupQueue` | Catches any type of media group |
 
-This allows developers to handle mixed media uploads efficiently.  
+This allows developers to handle mixed media uploads efficiently.
 
-### 📨 **Handling Media Messages**  
+### 📨 **Handling Media Messages**
 
-In addition to receiving media groups, all media mapping annotations now support a **target type `MESSAGE`**, which allows methods to accept `MessageGroupQueue`.  
+In addition to receiving media groups, all media mapping annotations now support a **target type `MESSAGE`**, which allows methods to accept `MessageGroupQueue`.
 
 | Annotation               | Target Type  | Method Parameter    | Description |
 |--------------------------|-------------|--------------------|-------------|
@@ -602,9 +617,9 @@ In addition to receiving media groups, all media mapping annotations now support
 | `@VideoGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles video messages |
 | `@MediaGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles any media message |
 
-#### 🔹 **What is `MessageGroupQueue`?**  
-- This queue allows developers to **take messages from Telegram updates** rather than just media files.  
-- Provides a **more flexible way** to handle incoming updates from users.  
+#### 🔹 **What is `MessageGroupQueue`?**
+- This queue allows developers to **take messages from Telegram updates** rather than just media files.
+- Provides a **more flexible way** to handle incoming updates from users.
 
 #### ✅ Example Usage
 
@@ -689,7 +704,7 @@ bot:
       back-button-prefix: BACK_
 ```
 
-`Note❗`️ When enabling i18n support (`bot.i18.enabled: true`), it's essential to integrate Spring's `messages.properties` for efficient management of localized messages. Ensure that you have a `messages.properties` file in your project's resources with translations for the declared keys. 
+`Note❗`️ When enabling i18n support (`bot.i18.enabled: true`), it's essential to integrate Spring's `messages.properties` for efficient management of localized messages. Ensure that you have a `messages.properties` file in your project's resources with translations for the declared keys.
 
 In the provided example, the keys such as `back-button`, `contact-button`, and `location-button` serve as placeholders for the corresponding localized messages. These keys should be defined in your message.properties file, each associated with the translated text for different languages.
 
@@ -796,5 +811,5 @@ Kudos on completing this milestone! Your commitment to learning and growing as a
 *Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
 
 *Feel free to reach out, ask questions, or provide feedback.*
-        
 
+1.6.0 version! Removed spring boot jpa and spring data redis and spring cloud feign client dependencies

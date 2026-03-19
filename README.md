@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.6.0) 🤖
+# Reflect Telegram Bot Library (Version 1.6.3) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -142,16 +142,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.3</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.0'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.3'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.6.0")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.6.3")
 ```
 ---
 
@@ -811,5 +811,4 @@ Kudos on completing this milestone! Your commitment to learning and growing as a
 *Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
 
 *Feel free to reach out, ask questions, or provide feedback.*
-
-1.6.0 version! Removed spring boot jpa and spring data redis and spring cloud feign client dependencies
+        

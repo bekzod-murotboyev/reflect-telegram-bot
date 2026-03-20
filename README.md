@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.6.3) 🤖
+# Reflect Telegram Bot Library (Version 1.6.4) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -11,23 +11,32 @@ This library provides a high-level abstraction over Telegram bot API methods. Sa
 import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
 import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.util.enums.KeyboardType;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 
 @BotController
 @RequiredArgsConstructor
 public class RegisterController {
-    
+
     private final Sender sender;
 
     @TextMapping(regexp = "/start")
     public UserState showStartMenu(HashedUser user) {
-        sender.sendMessage(user, "📲 Enter Your Phone", KeyboardType.CONTACT);
+        sender.sendMessage(user)
+                .text("📲 Enter Your Phone")
+                .keyboardRow(KeyboardButton
+                        .builder()
+                        .requestContact(true)
+                        .text("My Phone")
+                        .build())
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(true)
+                .send();
         return State.SEND_PHONE;
     }
-    
+
 }
 ```
 
@@ -49,10 +58,13 @@ public class RegisterController {
     
     private final Sender sender;
 
-    @ContactMapping(states = {State.Fields.SEND_PHONE}, target = ContactMappingTarget.PHONE_NUMBER)
+    @ContactMapping(states = {State.Fields.SEND_PHONE}, target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
     public UserState savePhoneAndShowMainMenu(HashedUser user, String phoneNumber) {
         // ... Saving phone number
-        sender.sendMessage(user, "Choose one...", List.of(List.of(SEARCH_MODE,SETTINGS)));
+        sender.sendMessage(user)
+                .text("Choose one...")
+                .inlineKeyboardRow("Search", "Settings")
+                .send();
         return State.MAIN_MENU;
     }
     
@@ -79,7 +91,9 @@ public class ExceptionController {
 
     @TextMapping(regexp = "[\\w.-]*")
     public UserState exceptionHandler(HashedUser user) {
-        sender.sendMessage(user, "♨️ You entered unknown option, please try again!");
+        sender.sendMessage(user)
+                .text("♨️ You entered unknown option, please try again!")
+                .send();
         return user.getState();
     }
     
@@ -94,7 +108,8 @@ Keep your codebase as sleek as your bot's interactions! The library encourages c
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
 import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping.CallbackQueryMappingTarget;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
@@ -106,14 +121,15 @@ public class SettingsController {
     private final Sender sender;
 
     @CallbackQueryMapping(dataRegexp = "(" + LANGUAGE_EN + "|" + LANGUAGE_RU + "+)", target = CallbackQueryMappingTarget.QUERY_DATA)
-    public UserState changeLanguage(HashedUser user, String data)
-          
-          // Updating language...
-          
-        sender.editMessageText(user, "Choose one...", List.of(List.of(CHANGE_PHONE,CHANGE_LANGUAGE),List.of(BACK_TO_MAIN_MENU)));
+    public UserState changeLanguage(HashedUser user, String data) {
+        // Updating language...
+        sender.editMessageText(user)
+                .text("Choose one...")
+                .inlineKeyboardRow("Change Phone", "Change Language")
+                .inlineKeyboardRow("Back")
+                .send();
         return State.SETTINGS_MENU;
     }
-    
 }
 ```
 
@@ -142,16 +158,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.6.3</version>
+    <version>1.6.4</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.3'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.4'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.6.3")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.6.4")
 ```
 ---
 
@@ -365,12 +381,12 @@ import io.github.reflectframework.reflecttelegrambot.annotation.mapping.Callback
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.LocationMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.file.PhotoMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.photo.PhotoMapping;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Location;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.photosizes.PhotoSize;
 
 @BotController
 public class Controller {
@@ -718,12 +734,11 @@ location-button=Share Location
 ---
 
 ## Enhanced Messaging with Sender Object 📤
-The library introduces a powerful component, `io.github.reflectframework.reflecttelegrambot.components.sender.base.Sender`, designed to streamline the process of sending various types of messages to users on the Telegram platform.
+The library introduces a powerful component, `io.github.reflectframework.reflecttelegrambot.component.sender.Sender`, designed to streamline the process of sending various types of messages to users on the Telegram platform.
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
 import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.util.enums.KeyboardType;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
@@ -753,42 +768,56 @@ public class RegisterController {
     
 }
 ```
-Those methods encapsulates the complexities of sending messages, making it straightforward for developers to incorporate various communication features into their Telegram bot applications. Whether it's responding to user queries, providing updates, or delivering important information, sender methods empowers developers to enhance the user experience effortlessly.
+Those methods encapsulate the complexities of sending messages, making it straightforward for developers to incorporate various communication features into their Telegram bot applications. Whether it's responding to user queries, providing updates, or delivering important information, sender methods empower developers to enhance the user experience effortlessly.
+
+`sendMessage(...)` and `editMessageText(...)` return builders. Always complete the chain with `.send()`. The builder-returning methods are annotated with `@CheckReturnValue`, so IDEs can warn when the returned builder is ignored.
 
 For developers looking to send custom messages in their Telegram bot applications, the library provides a powerful tool — `Reflector`. This object enables the direct transmission of custom messages, offering a flexible approach to communication beyond standard text messages.
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
-import io.github.reflectframework.reflecttelegrambot.network.feignclient.telegram.Reflector;
+import io.github.reflectframework.reflecttelegrambot.network.client.Reflector;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.util.enums.KeyboardType;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendDocument;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import lombok.RequiredArgsConstructor;
 
 @BotController
 @RequiredArgsConstructor
 public class RegisterController {
-    
+
     private final Reflector reflector;
 
     @TextMapping(regexp = "/start")
     public UserState showStartMenu(HashedUser user) {
-        reflector.sendMessage(new SendMessage(...));  // used to send a SendMessage
-        reflector.editMessageText(new EditMessageText(...)); // used to send a EditMessageText
-        reflector.sendPhoto(new SendPhoto(...)); // used to send a SendPhoto
-        reflector.sendDocument(new SendDocument(...)); // used to send a SendDocument
-        
+        reflector.sendMessage(new SendMessage(user.getChatId().toString(), "Hello"));
+
+        EditMessageText editMessageText = new EditMessageText("Updated text");
+        editMessageText.setChatId(user.getChatId());
+        editMessageText.setMessageId(user.getLastMessageId());
+        reflector.editMessageText(editMessageText);
+
+        SendPhoto sendPhoto = new SendPhoto();
+        sendPhoto.setChatId(user.getChatId());
+        sendPhoto.setPhoto(new InputFile("file-id-or-url"));
+        reflector.sendPhoto(sendPhoto);
+
+        SendDocument sendDocument = new SendDocument();
+        sendDocument.setChatId(user.getChatId());
+        sendDocument.setDocument(new InputFile("file-id-or-url"));
+        reflector.sendDocument(sendDocument);
+
         reflector.getFilePath("fileId"); // used to get file info and full file path
-        reflector.getFile("fileId"); // used to get file content as 'feign.Response'
+        reflector.getFile("fileId"); // used to get file content as byte[]
         :
         
         ...
     }
-    
+
 }
 ```
 Utilizing `reflector`, developers gain the ability to transmit messages with custom structures or additional fields tailored to their specific requirements. This facilitates the integration of diverse message types, such as media files, interactive buttons, or any other custom content.

@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.6.4) 🤖
+# Reflect Telegram Bot Library (Version 1.6.6) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -158,16 +158,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.6.4</version>
+    <version>1.6.6</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.4'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.6'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.6.4")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.6.6")
 ```
 ---
 
@@ -751,16 +751,20 @@ public class RegisterController {
 
     @TextMapping(regexp = "/start")
     public UserState showStartMenu(HashedUser user) {
-        sender.sendMessage(...);  // used to send a SendMessage
+        sender.sendMessage(...);  // builder for SendMessage
         sender.sendWebMessage(...); // used to send a SendMessage with web page button
-        sender.editMessageText(...); // used to send a EditMessageText
+        sender.editMessageText(...); // builder for EditMessageText
         sender.editWebMessageText(...); // used to send a EditMessageText with web page button
+        sender.sendLocation(...); // builder for SendLocation
+        sender.forwardMessage(...); // builder for ForwardMessage
+        sender.deleteMessage(...); // builder for DeleteMessage
         sender.sendPhoto(...); // used to send a SendPhoto
         sender.sendDocument(...); // used to send a SendDocument
         sender.sendAudio(...); // used to send a SendAudio
         sender.sendVoice(...); // used to send a SendVoice
         sender.sendVideo(...); // used to send a SendVideo
-        sender.sendInvoice(...); // used to send a SendInvoice
+        sender.sendInvoice(...); // builder for SendInvoice
+        sender.createInvoiceLink(...); // builder for CreateInvoiceLink
         :
         
         ...
@@ -770,7 +774,84 @@ public class RegisterController {
 ```
 Those methods encapsulate the complexities of sending messages, making it straightforward for developers to incorporate various communication features into their Telegram bot applications. Whether it's responding to user queries, providing updates, or delivering important information, sender methods empower developers to enhance the user experience effortlessly.
 
-`sendMessage(...)` and `editMessageText(...)` return builders. Always complete the chain with `.send()`. The builder-returning methods are annotated with `@CheckReturnValue`, so IDEs can warn when the returned builder is ignored.
+Builder-based APIs now cover:
+
+- `sendMessage(...)`
+- `editMessageText(...)`
+- `sendLocation(...)`
+- `forwardMessage()`
+- `deleteMessage()`
+- `sendInvoice(...)`
+- `createInvoiceLink()`
+
+Always complete builder chains with `.send()`. The builder-returning methods are annotated with `@CheckReturnValue`, so IDEs can warn when the returned builder is ignored.
+
+### Builder Examples
+
+```java
+sender.sendMessage(user)
+        .text("welcome.message", user.getName())
+        .inlineKeyboardRow("Open", "Settings")
+        .send();
+
+sender.editMessageText(user)
+        .text("menu.updated", user.getName())
+        .send();
+
+sender.sendLocation(user)
+        .latitude(41.3111)
+        .longitude(69.2797)
+        .horizontalAccuracy(25.0)
+        .send();
+
+sender.forwardMessage()
+        .chatId(user.getChatId())
+        .fromChatId(sourceChatId)
+        .messageId(sourceMessageId)
+        .send();
+
+sender.deleteMessage()
+        .chatId(user.getChatId())
+        .messageId(user.getLastMessageId())
+        .send();
+
+sender.sendInvoice(user)
+        .title("invoice.title", orderId)
+        .description("invoice.description", orderId)
+        .payload("order-" + orderId)
+        .providerToken(providerToken)
+        .currency(InvoiceCurrency.UZS)
+        .prices(List.of(new LabeledPrice("Order", amount)))
+        .send();
+
+String link = sender.createInvoiceLink(user)
+        .title("invoice.title", orderId)
+        .description("invoice.description", orderId)
+        .payload("order-" + orderId)
+        .providerToken(providerToken)
+        .currency(InvoiceCurrency.UZS)
+        .prices(List.of(new LabeledPrice("Order", amount)))
+        .send();
+```
+
+### Translation Arguments
+
+Builder text methods accept `Object... args`. These arguments are used both for i18n resolution and for default formatting when translation is disabled or language is missing.
+
+```java
+sender.sendMessage(user)
+        .text("Hello {0}", user.getName())
+        .send();
+
+sender.sendInvoice(user)
+        .title("invoice.title", orderId)
+        .description("invoice.description", orderId, totalAmount)
+        .payload("invoice-" + orderId)
+        .providerToken(providerToken)
+        .currency(InvoiceCurrency.UZS)
+        .prices(prices)
+        .send();
+```
 
 For developers looking to send custom messages in their Telegram bot applications, the library provides a powerful tool — `Reflector`. This object enables the direct transmission of custom messages, offering a flexible approach to communication beyond standard text messages.
 ```java

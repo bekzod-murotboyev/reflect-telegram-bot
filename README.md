@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.7.0) 🤖
+# Reflect Telegram Bot Library (Version 1.7.1) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -158,16 +158,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.7.0'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.7.1'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.7.0")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.7.1")
 ```
 ---
 
@@ -184,7 +184,65 @@ In case, you want to check production mode locally, we highly recommend you to u
 
 ---
 
-### **🏁 Step 2️⃣:** Creating type for User State as Enum
+### **🏁 Step 2️⃣:** Creating Bot Controller
+_The library now ships with a default in-memory `TelegramUserDetailsService`, so you can start without creating a user entity or a database service._
+```java
+import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.LocationMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.photo.PhotoMapping;
+import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import lombok.RequiredArgsConstructor;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Location;
+import org.telegram.telegrambots.meta.api.objects.photosizes.PhotoSize;
+
+@BotController
+@RequiredArgsConstructor
+public class Controller {
+
+    private final Sender sender;
+
+    @TextMapping(regexp = "/start")
+    public void start(HashedUser user) {
+        sender.sendMessage(user)
+                .text("Hello from Reflect Telegram Bot")
+                .send();
+    }
+
+    @CallbackQueryMapping(dataRegexp = "YOUR_REGULAR_EXPRESSION")
+    public void callbackQueryMapping(HashedUser user, CallbackQuery callbackQuery){
+        // ....
+    }
+
+    @ContactMapping(target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
+    public void contactMapping(HashedUser user, String phoneNumber){
+        // ....
+    }
+
+    @LocationMapping
+    public void locationMapping(HashedUser user, Location location){
+        // ....
+    }
+
+    @PhotoMapping
+    public void photoMapping(HashedUser user, PhotoSize photoSize){
+        // ....
+    }
+}
+```
+That is enough for a fast local start. In development mode, the library stores users in memory automatically, so you can test mappings, senders, and i18n without preparing a database first.
+
+---
+
+## Custom User Details Implementation
+
+For production projects, you will usually want to persist users in your own database. In that case, provide your own implementations of `TelegramUserDetails` and `TelegramUserDetailsService`. Once your bean exists, the library's default in-memory implementation is skipped automatically.
+
+### **Creating type for User State as Enum**
 ```java
 import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.experimental.FieldNameConstants;
@@ -196,35 +254,36 @@ public enum State implements UserState {
     @FieldNameConstants.Include MAIN_MENU
 }
 ```
-This is simple enum, but marked as UserState. This helps to manage users and their actions! As you can see, here used [Lomboks's](https://projectlombok.org/) [@FieldNameConstants](https://projectlombok.org/features/experimental/FieldNameConstants#:~:text=The%20%40FieldNameConstants%20annotation%20generates%20an,static%20final%20%2C%20of%20type%20java.) annotation. The purpose of using this annotation is to create identical constants with enums.
+This is simple enum, but marked as `UserState`. It helps you manage user flow and state transitions. [Lombok's](https://projectlombok.org/) [@FieldNameConstants](https://projectlombok.org/features/experimental/FieldNameConstants#:~:text=The%20%40FieldNameConstants%20annotation%20generates%20an,static%20final%20%2C%20of%20type%20java.) annotation is useful here for generating matching constant names.
 
----
-
-### **🏁 Step 3️⃣:** Creating type for User Language as Enum  `(Optional)`
+### **Creating type for User Language as Enum** `(Optional)`
 ```java
 import io.github.reflectframework.reflecttelegrambot.util.marker.UserLanguage;
 
 public enum Language implements UserLanguage {
     EN("en"),
     RU("ru");
-    
+
     private final String code;
-    
+
     Language(String code) {
         this.code = code;
     }
+
     @Override
     public String getCode() {
         return code;
     }
 }
 ```
-This is simple enum, but marked as UserLanguage. This helps you to work with multi languges. Here the `code` is suffix of one of the `messages.properties` file(ex: `messages_ru.properties`).The `code` must not be wrong! You can learn more about Spring's i18 configuration from [here](https://docs.spring.io/spring-boot/docs/2.1.13.RELEASE/reference/html/boot-features-internationalization.html)
+This is simple enum, but marked as `UserLanguage`. This helps you to work with multi languages. Here the `code` is suffix of one of the `messages.properties` files, for example `messages_ru.properties`.
 
 ---
-### **🏁 Step 4️⃣:** Marking User Entity as Telegram User Details
+### **Creating your User Entity**
 ```java
 import io.github.reflectframework.reflecttelegrambot.entity.user.TelegramUserDetails;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserLanguage;
+import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -252,8 +311,8 @@ public class UserEntity implements TelegramUserDetails {
         this.state = state;
         this.language = language;
     }
-    
-     public UserEntity() {}
+
+    public UserEntity() {}
 
     @Nonnull
     @Override
@@ -274,19 +333,19 @@ public class UserEntity implements TelegramUserDetails {
     }
 }
 ```
-`io.github.reflectframework.reflecttelegrambot.entities.user.TelegramUserDetails` is just interface and requires to implement three methods which `getChatId()`, `getState()` and `getLanguage()`. `getLanguage()` is optional and if you don't want to use it, you can just return `null` instead of creating `enum` and storing it to database!
+`TelegramUserDetails` requires only three methods: `getChatId()`, `getState()`, and `getLanguage()`. `getLanguage()` is optional, so you can return `null` if you do not use i18n.
 
 ---
-### **🏁 Step 5️⃣:** Marking User Service as Telegram User Details Service
+### **Creating your User Service**
 ```java
+import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.entity.user.TelegramUserDetails;
+import io.github.reflectframework.reflecttelegrambot.service.user.TelegramUserDetailsService;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
-import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.entity.user.TelegramUserDetails;
-import io.github.reflectframework.reflecttelegrambot.service.user.TelegramUserDetailsService;
 
 @Service
 @RequiredArgsConstructor
@@ -303,27 +362,37 @@ public class UserService implements TelegramUserDetailsService {
     @Nonnull
     @Override
     public TelegramUserDetails save(@Nonnull User user, long chatId) {
-        return userRepository.save(new UserEntity(user.getFirstName(), user.getUserName(), chatId, State.INIT, Language.EN));
+        return userRepository.save(new UserEntity(
+                user.getFirstName(),
+                chatId,
+                State.INIT,
+                Language.EN
+        ));
     }
 
     @Override
     public void update(@Nonnull HashedUser user) {
         UserEntity entity = userRepository.findByChatId(user.getChatId());
-        if (user.getState() instanceof State state && user.getLanguage() instanceof Language language) {
-            entity.setState(state);
-            entity.setLanguage(language);
-            userRepository.save(entity);
+        if (entity == null) {
+            return;
         }
+        if (user.getState() instanceof State state) {
+            entity.setState(state);
+        }
+        if (user.getLanguage() instanceof Language language) {
+            entity.setLanguage(language);
+        }
+        userRepository.save(entity);
     }
 }
 ```
-`io.github.reflectframework.reflecttelegrambot.service.user.TelegramUserDetailsService` is interface that requires to implement three methods as described below:
-- `public TelegramUserDetails findByChatId(long chatId)` - this method need to search user by `chatId` and return. In case, the user is new `null` must be returned.
-- `public TelegramUserDetails save(@Nonnull User user, long chatId)` - this method need to save a new `org.telegram.telegrambots.meta.api.objects.User` to database. Only called when `public TelegramUserDetails findByChatId(long chatId)` returns `null`.
-- `public void update(@Nonnull HashedUser user)` - this method need to update stored user info when this method called. Changed data come as `io.github.reflectframework.reflecttelegrambot.entities.user.HashedUser`
+`TelegramUserDetailsService` has only three responsibilities:
+- `findByChatId(long chatId)` should return the stored user or `null` for a new user
+- `save(User user, long chatId)` should create a new user when the chat is seen for the first time
+- `update(HashedUser user)` should persist state and language changes after handlers return a new `UserState`
 
 ---
-### **🏁 Step 6️⃣:** Allowing Telegram Webhook in Spring Security
+### **Optional: Allowing Telegram Webhook in Spring Security**
 
 If your **Spring Boot** application uses **Spring Security**, you need to explicitly allow `POST` requests for the **Telegram Bot Webhook URL**. Otherwise, incoming updates from Telegram may be blocked.
 
@@ -350,49 +419,8 @@ public class WebSecurityConfiguration {
 ```
 
 ---
-### **🏁 Step 8️⃣:** Creating Bot Controller
-_Now you can catch whatever you want with small piece of code, just feel free and work with your business logic!_
-```java
-import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.LocationMapping;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.photo.PhotoMapping;
-import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Location;
-import org.telegram.telegrambots.meta.api.objects.photosizes.PhotoSize;
-
-@BotController
-public class Controller {
-    
-    @TextMapping(regexp = "YOUR_REGULAR_EXPRESSION")
-    public UserState textMapping(HashedUser user, String text){
-        // ....
-    }
-    @CallbackQueryMapping(dataRegexp = "YOUR_REGULAR_EXPRESSION")
-    public UserState callbackQueryMapping(HashedUser user, CallbackQuery callbackQuery){
-        // ....
-    }
-    @ContactMapping(target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
-    public UserState contactMapping(HashedUser user, String phoneNumber){
-        // ....
-    }
-    @LocationMapping
-    public UserState locationMapping(HashedUser user, Location location){
-        // ....
-    }
-    @PhotoMapping
-    public UserState photoMapping(HashedUser user, PhotoSize photoSize){
-        // ....
-    }
-    
-    // ...
-}
-```
-`Note❗`️ Those methods are triggered when the user makes an action to the bot. Inside the method, you can implement the logic to handle the received data. To ensure a coherent user experience, the method should return a `UserState` object representing the user's current state or context. This `UserState` object can store information about the user's last action or interaction.
+### **Handler Return Values**
+`Note❗`️ Mapping methods are triggered when the user sends an update to the bot. Inside the method, you can implement the logic to handle the received data. To ensure a coherent user experience, the method should return a `UserState` object representing the user's current state or context. This `UserState` object can store information about the user's last action or interaction.
 
 By consistently returning UserState objects in these mapping methods, you create a structured approach to manage user states, facilitating a more organized and responsive Telegram bot. Customize the logic within each method to suit your bot's specific requirements and enhance the overall user interaction. 🚀🤖
 

@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.7.1) 🤖
+# Reflect Telegram Bot Library (Version 1.7.2) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -158,16 +158,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.7.1</version>
+    <version>1.7.2</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.7.1'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.7.2'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.7.1")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.7.2")
 ```
 ---
 
@@ -177,6 +177,7 @@ bot:
   mode: development  # By default 'none' - turned off, in 'development' mode uses telegram long polling method, if specified 'production', telegram webhook method will be autoconfigured
   domain: YOUR_DOMAIN  # https://example.com or example.com; Specify this property when 'mode' marked as 'production';
   token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot;
+  username: YOUR_BOT_USERNAME  # Optional bot username from BotFather, for example my_sample_bot
   i18n: false  # Enable MessageSource-based translation support
 ```
 Autoconfiguration is enabled by default. You do **not** need `@EnableBot` anymore; just add the dependency and set `bot.*` properties.
@@ -998,3 +999,4 @@ Kudos on completing this milestone! Your commitment to learning and growing as a
 *Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
 
 *Feel free to reach out, ask questions, or provide feedback.*
+        

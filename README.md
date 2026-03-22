@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.6.6) 🤖
+# Reflect Telegram Bot Library (Version 1.6.8) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -158,16 +158,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.6.6</version>
+    <version>1.6.8</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.6'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.8'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.6.6")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.6.8")
 ```
 ---
 
@@ -181,29 +181,6 @@ bot:
 ```
 Autoconfiguration is enabled by default. You do **not** need `@EnableBot` anymore; just add the dependency and set `bot.*` properties.
 In case, you want to check production mode locally, we highly recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
-
----
-
-### **🏁 Optional:** Redis (Lettuce, Low-Level)
-If you want session storage in Redis, enable Lettuce-based storage:
-```yaml
-bot:
-  redis:
-    enabled: true
-    host: localhost
-    port: 6379
-    database: 0
-    password: ""
-    ssl: false
-    timeout: PT5S
-    ttl-seconds: 86400   # use -1 to disable TTL
-    key-prefix: "bot:user:"
-    pool:
-      max-active: 8      # use -1 for unlimited
-      max-idle: 8        # use -1 for unlimited
-      min-idle: 0
-      max-wait: PT1S     # negative means wait indefinitely
-```
 
 ---
 
@@ -596,7 +573,7 @@ In this example, the @LocationMapping annotation is configured to catch only loc
 
 ## 📦 Handling Media Groups in a Single Method Invocation
 
-The library supports efficient handling of media groups across multiple types (photos, videos, audio, and documents) in a single bot controller method. This eliminates the need to process media files individually, making bulk media handling seamless.
+The library supports efficient handling of media groups across multiple types (photos, animations, videos, audio, and documents) in a single bot controller method. This eliminates the need to process media files individually, making bulk media handling seamless.
 
 ### 🎯 Supported Media Group Annotations
 
@@ -605,6 +582,7 @@ The following annotations allow bots to receive specific types of media groups i
 | Annotation               | Method Parameter         | Description |
 |--------------------------|-------------------------|-------------|
 | `@AudioGroupMapping`    | `AudioGroupQueue`      | Handles audio groups |
+| `@AnimationGroupMapping`| `AnimationGroupQueue`  | Handles animation groups |
 | `@DocumentGroupMapping` | `DocumentGroupQueue`   | Handles document groups |
 | `@PhotoGroupMapping`    | `PhotoGroupQueue`      | Handles photo groups |
 | `@VideoGroupMapping`    | `VideoGroupQueue`      | Handles video groups |
@@ -628,6 +606,7 @@ In addition to receiving media groups, all media mapping annotations now support
 | Annotation               | Target Type  | Method Parameter    | Description |
 |--------------------------|-------------|--------------------|-------------|
 | `@AudioGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles audio messages |
+| `@AnimationGroupMapping`| `MESSAGE`   | `MessageGroupQueue` | Handles animation messages |
 | `@DocumentGroupMapping` | `MESSAGE`   | `MessageGroupQueue` | Handles document messages |
 | `@PhotoGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles photo messages |
 | `@VideoGroupMapping`    | `MESSAGE`   | `MessageGroupQueue` | Handles video messages |
@@ -639,13 +618,21 @@ In addition to receiving media groups, all media mapping annotations now support
 
 #### ✅ Example Usage
 
-Below is an example of handling a group of photos, videos, audios and documents:
+Below is an example of handling a group of photos, animations, videos, audios and documents:
 
 ```java
 @PhotoGroupMapping
 public UserState receiveBulkPhotos(HashedUser user, PhotoGroupQueue queue) {
     for (PhotoSize photoSize : queue.takeAsList()) {
         System.out.println(photoSize.getFileId());
+    }
+    return user.getState();
+}
+
+@AnimationGroupMapping
+public UserState receiveBulkAnimations(HashedUser user, AnimationGroupQueue queue) {
+    for (Animation animation : queue.takeAsList()) {
+        System.out.println(animation.getFileId());
     }
     return user.getState();
 }
@@ -758,11 +745,13 @@ public class RegisterController {
         sender.sendLocation(...); // builder for SendLocation
         sender.forwardMessage(...); // builder for ForwardMessage
         sender.deleteMessage(...); // builder for DeleteMessage
-        sender.sendPhoto(...); // used to send a SendPhoto
-        sender.sendDocument(...); // used to send a SendDocument
-        sender.sendAudio(...); // used to send a SendAudio
-        sender.sendVoice(...); // used to send a SendVoice
-        sender.sendVideo(...); // used to send a SendVideo
+        sender.sendPhoto(...); // builder for SendPhoto
+        sender.sendAnimation(...); // builder for SendAnimation
+        sender.sendDocument(...); // used to send a document
+        sender.sendAudio(...); // used to send an audio
+        sender.sendVoice(...); // used to send a voice
+        sender.sendVideo(...); // builder for SendVideo
+        sender.sendMediaGroup(...); // builder for SendMediaGroup
         sender.sendInvoice(...); // builder for SendInvoice
         sender.createInvoiceLink(...); // builder for CreateInvoiceLink
         :
@@ -781,6 +770,13 @@ Builder-based APIs now cover:
 - `sendLocation(...)`
 - `forwardMessage()`
 - `deleteMessage()`
+- `sendPhoto(...)`
+- `sendAnimation(...)`
+- `sendVideo(...)`
+- `sendVoice(...)`
+- `sendAudio(...)`
+- `sendDocument(...)`
+- `sendMediaGroup(...)`
 - `sendInvoice(...)`
 - `createInvoiceLink()`
 
@@ -802,6 +798,47 @@ sender.sendLocation(user)
         .latitude(41.3111)
         .longitude(69.2797)
         .horizontalAccuracy(25.0)
+        .send();
+
+sender.sendPhoto(user)
+        .photo("telegram-file-id")
+        .caption("photo.caption", user.getName())
+        .send();
+
+sender.sendPhoto(user)
+        .photo(new InputFile("https://example.com/image.jpg"))
+        .send();
+
+sender.sendAnimation(user)
+        .animation("telegram-file-id")
+        .caption("animation.caption", user.getName())
+        .send();
+
+sender.sendVideo(user)
+        .video("telegram-file-id")
+        .caption("video.caption", user.getName())
+        .send();
+
+sender.sendVoice(user)
+        .voice("telegram-file-id")
+        .caption("voice.caption", user.getName())
+        .send();
+
+sender.sendAudio(user)
+        .audio("telegram-file-id")
+        .title("audio.title", user.getName())
+        .caption("audio.caption", user.getName())
+        .send();
+
+sender.sendDocument(user)
+        .document("telegram-file-id")
+        .caption("document.caption", user.getName())
+        .send();
+
+sender.sendMediaGroup(user)
+        .media(new InputMediaPhoto("photo-file-id"))
+        .media(new InputMediaAnimation("animation-file-id"))
+        .caption("album.caption", user.getName())
         .send();
 
 sender.forwardMessage()
@@ -838,9 +875,21 @@ String link = sender.createInvoiceLink(user)
 
 Builder text methods accept `Object... args`. These arguments are used both for i18n resolution and for default formatting when translation is disabled or language is missing.
 
+For optional text fields, such as photo captions, builders resolve them safely only when a value is present.
+
 ```java
 sender.sendMessage(user)
         .text("Hello {0}", user.getName())
+        .send();
+
+sender.sendPhoto(user)
+        .photo("telegram-file-id")
+        .caption("Photo for {0}", user.getName())
+        .send();
+
+sender.sendAnimation(user)
+        .animation("telegram-file-id")
+        .caption("Animation for {0}", user.getName())
         .send();
 
 sender.sendInvoice(user)
@@ -860,11 +909,15 @@ import io.github.reflectframework.reflecttelegrambot.network.client.Reflector;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
 import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
+import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendMediaGroup;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendDocument;
+import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendAnimation;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaAnimation;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import lombok.RequiredArgsConstructor;
 
 @BotController
@@ -887,10 +940,23 @@ public class RegisterController {
         sendPhoto.setPhoto(new InputFile("file-id-or-url"));
         reflector.sendPhoto(sendPhoto);
 
+        SendAnimation sendAnimation = new SendAnimation();
+        sendAnimation.setChatId(user.getChatId());
+        sendAnimation.setAnimation(new InputFile("file-id-or-url"));
+        reflector.sendAnimation(sendAnimation);
+
         SendDocument sendDocument = new SendDocument();
         sendDocument.setChatId(user.getChatId());
         sendDocument.setDocument(new InputFile("file-id-or-url"));
         reflector.sendDocument(sendDocument);
+
+        SendMediaGroup sendMediaGroup = new SendMediaGroup();
+        sendMediaGroup.setChatId(user.getChatId());
+        sendMediaGroup.setMedias(List.of(
+                new InputMediaPhoto("photo-file-id"),
+                new InputMediaAnimation("animation-file-id")
+        ));
+        reflector.sendMediaGroup(sendMediaGroup);
 
         reflector.getFilePath("fileId"); // used to get file info and full file path
         reflector.getFile("fileId"); // used to get file content as byte[]

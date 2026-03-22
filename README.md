@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.6.8) 🤖
+# Reflect Telegram Bot Library (Version 1.7.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -158,16 +158,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.6.8</version>
+    <version>1.7.0</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.6.8'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.7.0'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.6.8")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.7.0")
 ```
 ---
 
@@ -177,7 +177,7 @@ bot:
   mode: development  # By default 'none' - turned off, in 'development' mode uses telegram long polling method, if specified 'production', telegram webhook method will be autoconfigured
   domain: YOUR_DOMAIN  # https://example.com or example.com; Specify this property when 'mode' marked as 'production';
   token:  YOUR_BOT_TOKEN  # You can learn how to get it from https://core.telegram.org/bots/faq#how-do-i-create-a-bot;
-  username: YOUR_BOT_USERNAME  # Specify this property when 'mode' marked as 'development'; 
+  i18n: false  # Enable MessageSource-based translation support
 ```
 Autoconfiguration is enabled by default. You do **not** need `@EnableBot` anymore; just add the dependency and set `bot.*` properties.
 In case, you want to check production mode locally, we highly recommend you to use [NGROK](https://ngrok.com/). This is a versatile and popular tool used for exposing local servers to the internet. You can download it from [here!](https://ngrok.com/download)
@@ -332,7 +332,7 @@ If your **Spring Boot** application uses **Spring Security**, you need to explic
 You can configure your **Spring Security filter chain** to permit `POST` requests to the **Telegram Webhook URL**:
 
 ```java
-import static io.github.reflectframework.reflecttelegrambot.util.constant.Constant.TELEGRAM_WEBHOOK_URL; 
+import static io.github.reflectframework.reflecttelegrambot.util.constant.Constant.TELEGRAM_WEBHOOK_PATH;
 
 @Configuration
 @EnableMethodSecurity
@@ -341,9 +341,9 @@ public class WebSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
-                .requestMatchers(HttpMethod.POST, TELEGRAM_WEBHOOK_URL).permitAll()
-                .anyRequest().authenticated());
+                .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
+                        .requestMatchers(HttpMethod.POST, TELEGRAM_WEBHOOK_PATH).permitAll()
+                        .anyRequest().authenticated());
         return http.build();
     }
 }
@@ -698,25 +698,10 @@ Now, your bot is ready to speak multiple languages, providing a personalized exp
 ```yml
 bot:
   # Other bot configurations...
-  i18:
-    enabled: true   # Default: false
-    key:
-      back-button:  # if(bot.i18.enabled) "back-button" else "⬅️ Back"
-      contact-button: # if(bot.i18.enabled) "contact-button" else "📲 My Phone" 
-      location-button: # if(bot.i18.enabled) "location-button " else "🗺 My Location" 
-      back-button-prefix: BACK_
+  i18n: true   # Default: false
 ```
 
-`Note❗`️ When enabling i18n support (`bot.i18.enabled: true`), it's essential to integrate Spring's `messages.properties` for efficient management of localized messages. Ensure that you have a `messages.properties` file in your project's resources with translations for the declared keys.
-
-In the provided example, the keys such as `back-button`, `contact-button`, and `location-button` serve as placeholders for the corresponding localized messages. These keys should be defined in your message.properties file, each associated with the translated text for different languages.
-
-Ensure that your `message.properties` file includes entries like:
-```
-back-button=Go Back
-contact-button=Send Contact
-location-button=Share Location
-```
+`Note❗`️ When enabling i18n support (`bot.i18n: true`), it's essential to integrate Spring's `messages.properties` for efficient management of localized messages. Ensure that you have a `messages.properties` file in your project's resources with translations for the declared keys.
 
 ---
 
@@ -739,9 +724,7 @@ public class RegisterController {
     @TextMapping(regexp = "/start")
     public UserState showStartMenu(HashedUser user) {
         sender.sendMessage(...);  // builder for SendMessage
-        sender.sendWebMessage(...); // used to send a SendMessage with web page button
         sender.editMessageText(...); // builder for EditMessageText
-        sender.editWebMessageText(...); // used to send a EditMessageText with web page button
         sender.sendLocation(...); // builder for SendLocation
         sender.forwardMessage(...); // builder for ForwardMessage
         sender.deleteMessage(...); // builder for DeleteMessage
@@ -923,7 +906,7 @@ import lombok.RequiredArgsConstructor;
 @BotController
 @RequiredArgsConstructor
 public class RegisterController {
-
+    
     private final Reflector reflector;
 
     @TextMapping(regexp = "/start")
@@ -957,14 +940,14 @@ public class RegisterController {
                 new InputMediaAnimation("animation-file-id")
         ));
         reflector.sendMediaGroup(sendMediaGroup);
-
+        
         reflector.getFilePath("fileId"); // used to get file info and full file path
         reflector.getFile("fileId"); // used to get file content as byte[]
         :
         
         ...
     }
-
+    
 }
 ```
 Utilizing `reflector`, developers gain the ability to transmit messages with custom structures or additional fields tailored to their specific requirements. This facilitates the integration of diverse message types, such as media files, interactive buttons, or any other custom content.
@@ -980,11 +963,10 @@ Kudos on completing this milestone! Your commitment to learning and growing as a
 *Feel free to customize the message based on your preferences or the specific details of the Telegram bot library you've been exploring.*
 
 
-*This documentation is proudly developed and maintained by [Bekzodbek Murotboyev!](https://www.linkedin.com/in/bekzodbek-murotboyev/)*
+*This library is proudly developed and maintained by [Bekzodbek Murotboyev!](https://www.linkedin.com/in/bekzodbek-murotboyev/)*
 
 *Connect on [GitHub](https://github.com/bekzod-murotboyev)*
 
 *Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
 
 *Feel free to reach out, ask questions, or provide feedback.*
-        

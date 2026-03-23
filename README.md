@@ -3,128 +3,208 @@
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
-## Abstraction of Telegram API Methods
+## One Annotation Per Telegram Update Type
 
-This library provides a high-level abstraction over Telegram bot API methods. Say goodbye to tedious low-level details and focus on your bot's brilliance! 🌟
+The fastest way to understand the library is to see how every incoming Telegram update maps directly to a controller method. No manual update parsing, no `if/else` trees, no giant dispatcher classes. 🌟
 
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
-import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.LocationMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.animation.AnimationMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.audio.AudioMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.document.DocumentMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.photo.PhotoMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.video.VideoMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.voice.VoiceMapping;
+import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
 import lombok.RequiredArgsConstructor;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Location;
+import org.telegram.telegrambots.meta.api.objects.Audio;
+import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.Video;
+import org.telegram.telegrambots.meta.api.objects.contact.Contact;
+import org.telegram.telegrambots.meta.api.objects.games.Animation;
+import org.telegram.telegrambots.meta.api.objects.message.Message;
+import org.telegram.telegrambots.meta.api.objects.photo.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.Voice;
 
 @BotController
 @RequiredArgsConstructor
-public class RegisterController {
+public class UpdateMappingsController {
 
     private final Sender sender;
 
     @TextMapping(regexp = "/start")
-    public String showStartMenu(HashedUser user) {
+    public String start(HashedUser user) {
         sender.sendMessage(user)
-                .text("📲 Enter Your Phone")
-                .keyboardRow(KeyboardButton
-                        .builder()
-                        .requestContact(true)
-                        .text("My Phone")
-                        .build())
-                .resizeKeyboard(true)
-                .oneTimeKeyboard(true)
+                .text("Choose what you want to send: text, contact, location or media.")
+                .inlineKeyboardRow("Open profile", "Open uploads")
                 .send();
-        return "SEND_PHONE";
+        return "MAIN_MENU";
     }
 
+    @TextMapping(regexp = "settings|help", states = "MAIN_MENU", target = TextMapping.TextMappingTarget.TEXT)
+    public void textCommand(HashedUser user, String text) {
+        sender.sendMessage(user)
+                .text("TextMapping matched: " + text)
+                .send();
+    }
+
+    @CallbackQueryMapping(dataRegexp = "profile|uploads", target = CallbackQueryMapping.CallbackQueryMappingTarget.QUERY_DATA)
+    public void callbackData(HashedUser user, String data) {
+        sender.editMessageText(user)
+                .text("CallbackQueryMapping matched: " + data)
+                .send();
+    }
+
+    @CallbackQueryMapping(textRegexp = "Open .*", target = CallbackQueryMapping.CallbackQueryMappingTarget.CALLBACK_QUERY)
+    public void callbackObject(HashedUser user, CallbackQuery callbackQuery) {
+        sender.sendMessage(user)
+                .text("CallbackQueryMapping matched messageId: " + callbackQuery.getMessage().getMessageId())
+                .send();
+    }
+
+    @ContactMapping(states = "WAITING_PHONE", target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
+    public String phoneNumber(HashedUser user, String phoneNumber) {
+        sender.sendMessage(user)
+                .text("Phone saved: " + phoneNumber)
+                .send();
+        return "PROFILE_READY";
+    }
+
+    @ContactMapping(target = ContactMapping.ContactMappingTarget.CONTACT)
+    public void contactObject(HashedUser user, Contact contact) {
+        sender.sendMessage(user)
+                .text("ContactMapping matched: " + contact.getFirstName())
+                .send();
+    }
+
+    @LocationMapping(states = "WAITING_LOCATION", target = LocationMapping.LocationMappingTarget.LOCATION)
+    public void location(HashedUser user, Location location) {
+        sender.sendMessage(user)
+                .text("Location received: " + location.getLatitude() + ", " + location.getLongitude())
+                .send();
+    }
+
+    @PhotoMapping(states = "WAITING_MEDIA", target = PhotoMapping.PhotoMappingTarget.PHOTO_SIZE)
+    public void photo(HashedUser user, PhotoSize photo) {
+        sender.sendMessage(user)
+                .text("PhotoMapping matched: " + photo.getFileUniqueId())
+                .send();
+    }
+
+    @VoiceMapping(states = "WAITING_MEDIA", target = VoiceMapping.VoiceMappingTarget.VOICE)
+    public void voice(HashedUser user, Voice voice) {
+        sender.sendMessage(user)
+                .text("VoiceMapping matched: " + voice.getDuration() + " sec")
+                .send();
+    }
+
+    @AudioMapping(states = "WAITING_MEDIA", target = AudioMapping.AudioMappingTarget.AUDIO)
+    public void audio(HashedUser user, Audio audio) {
+        sender.sendMessage(user)
+                .text("AudioMapping matched: " + audio.getTitle())
+                .send();
+    }
+
+    @VideoMapping(states = "WAITING_MEDIA", target = VideoMapping.VideoMappingTarget.VIDEO)
+    public void video(HashedUser user, Video video) {
+        sender.sendMessage(user)
+                .text("VideoMapping matched: " + video.getFileName())
+                .send();
+    }
+
+    @DocumentMapping(states = "WAITING_MEDIA", target = DocumentMapping.DocumentMappingTarget.DOCUMENT)
+    public void document(HashedUser user, Document document) {
+        sender.sendMessage(user)
+                .text("DocumentMapping matched: " + document.getFileName())
+                .send();
+    }
+
+    @AnimationMapping(states = "WAITING_MEDIA", target = AnimationMapping.AnimationMappingTarget.ANIMATION)
+    public void animation(HashedUser user, Animation animation) {
+        sender.sendMessage(user)
+                .text("AnimationMapping matched: " + animation.getFileName())
+                .send();
+    }
+
+    @TextMapping(regexp = ".*", target = TextMapping.TextMappingTarget.MESSAGE)
+    public void fallbackMessage(HashedUser user, Message message) {
+        sender.sendMessage(user)
+                .text("Unhandled update in state: " + user.getState() + ", messageId=" + message.getMessageId())
+                .send();
+    }
 }
 ```
 
-## Event Handling and Callback Abstractions
+## Media Group Mapping Without Manual Aggregation
 
-Handle incoming messages and events effortlessly! The library adopts an event-driven model and magical abstractions, making your bot a responsive chatterbox. 📬
+Albums and grouped uploads are where bot code usually turns messy. Reflect Telegram Bot gives you dedicated annotations for every media-group case, so your controller can work with the queued group instead of rebuilding it yourself. 📦
 
 ```java
 import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.MediaGroupMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.animation.AnimationGroupMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.audio.AudioGroupMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.document.DocumentGroupMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.photo.PhotoGroupMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.video.VideoGroupMapping;
 import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
+import io.github.reflectframework.reflecttelegrambot.service.mediagroup.AbstractMediaGroupQueue;
 import lombok.RequiredArgsConstructor;
 
 @BotController
 @RequiredArgsConstructor
-public class RegisterController {
-    
+public class MediaGroupController {
+
     private final Sender sender;
 
-    @ContactMapping(states = {State.Fields.SEND_PHONE}, target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
-    public String savePhoneAndShowMainMenu(HashedUser user, String phoneNumber) {
-        // ... Saving phone number
+    @MediaGroupMapping(states = "WAITING_ALBUM")
+    public void anyAlbum(HashedUser user, AbstractMediaGroupQueue<?> mediaGroup) {
         sender.sendMessage(user)
-                .text("Choose one...")
-                .inlineKeyboardRow("Search", "Settings")
+                .text("MediaGroupMapping collected album: " + mediaGroup.getMediaGroupId())
                 .send();
-        return "MAIN_MENU";
     }
-    
-}
-```
 
-## Built-in Error Handling
-
-Boost your bot's resilience with built-in error handling. No more stressing over API hiccups – let the library handle it like a pro! 💪
-
-```java
-import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
-import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
-import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import lombok.RequiredArgsConstructor;
-
-@BotController(order = Integer.MAX_VALUE)
-@RequiredArgsConstructor
-public class ExceptionController {
-    
-    private final Sender sender;
-
-    @TextMapping(regexp = "[\\w.-]*")
-    public String exceptionHandler(HashedUser user) {
+    @PhotoGroupMapping(states = "WAITING_PHOTO_ALBUM")
+    public void photoAlbum(HashedUser user, AbstractMediaGroupQueue<?> photoGroup) {
         sender.sendMessage(user)
-                .text("♨️ You entered unknown option, please try again!")
+                .text("PhotoGroupMapping collected group: " + photoGroup.getMediaGroupId())
                 .send();
-        return user.getState();
     }
-    
-}
-```
 
-## Clean Code Organization
-
-Keep your codebase as sleek as your bot's interactions! The library encourages clean and organized code, making maintenance a walk in the digital park. 🏞️
-
-
-```java
-import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
-import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping;
-import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping.CallbackQueryMappingTarget;
-import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import lombok.RequiredArgsConstructor;
-
-@BotController(order = 1)
-@RequiredArgsConstructor
-public class SettingsController {
-    
-    private final Sender sender;
-
-    @CallbackQueryMapping(dataRegexp = "(" + LANGUAGE_EN + "|" + LANGUAGE_RU + "+)", target = CallbackQueryMappingTarget.QUERY_DATA)
-    public String changeLanguage(HashedUser user, String data) {
-        // Updating language...
-        sender.editMessageText(user)
-                .text("Choose one...")
-                .inlineKeyboardRow("Change Phone", "Change Language")
-                .inlineKeyboardRow("Back")
+    @AudioGroupMapping(states = "WAITING_AUDIO_ALBUM")
+    public void audioAlbum(HashedUser user, AbstractMediaGroupQueue<?> audioGroup) {
+        sender.sendMessage(user)
+                .text("AudioGroupMapping collected group: " + audioGroup.getMediaGroupId())
                 .send();
-        return "SETTINGS_MENU";
+    }
+
+    @VideoGroupMapping(states = "WAITING_VIDEO_ALBUM")
+    public void videoAlbum(HashedUser user, AbstractMediaGroupQueue<?> videoGroup) {
+        sender.sendMessage(user)
+                .text("VideoGroupMapping collected group: " + videoGroup.getMediaGroupId())
+                .send();
+    }
+
+    @DocumentGroupMapping(states = "WAITING_DOCUMENT_ALBUM")
+    public void documentAlbum(HashedUser user, AbstractMediaGroupQueue<?> documentGroup) {
+        sender.sendMessage(user)
+                .text("DocumentGroupMapping collected group: " + documentGroup.getMediaGroupId())
+                .send();
+    }
+
+    @AnimationGroupMapping(states = "WAITING_ANIMATION_ALBUM")
+    public void animationAlbum(HashedUser user, AbstractMediaGroupQueue<?> animationGroup) {
+        sender.sendMessage(user)
+                .text("AnimationGroupMapping collected group: " + animationGroup.getMediaGroupId())
+                .send();
     }
 }
 ```
@@ -232,6 +312,9 @@ public class Controller {
 }
 ```
 That is enough for a fast local start. In development mode, the library stores users in memory automatically, so you can test mappings, senders, and i18n without preparing a database first.
+# Congratulations! 🎉
+
+Your bot is now up and running with the Quick Start setup. From here, you can either keep building with the default in-memory user storage for fast experiments, or move on to a custom persistent user model for production-ready projects.
 
 ---
 
@@ -409,38 +492,6 @@ public class WebSecurityConfiguration {
 `Note❗`️ Mapping methods are triggered when the user sends an update to the bot. Inside the method, you can implement the logic to handle the received data. To ensure a coherent user experience, the method should return a `String` object representing the user's current state or context. This `String` object can store information about the user's last action or interaction.
 
 By consistently returning String objects in these mapping methods, you create a structured approach to manage user states, facilitating a more organized and responsive Telegram bot. Customize the logic within each method to suit your bot's specific requirements and enhance the overall user interaction. 🚀🤖
-
----
-
-# Congratulations! 🎉
-
-Fantastic News! You've completed reading the documentation for `io.github.reflectframework:reflect-telegram-bot`! 🚀 Your commitment to understanding the library and its features is truly commendable.
-
----
-
-## Example Project: Telegram Bot using **Reflect Telegram Bot**
-
-The **Unit Bot** example project showcases a Telegram bot integrated with Spotify, allowing users to search for music by name. This project is built using `io.github.reflectframework:reflect-telegram-bot`, highlighting the seamless integration of a Telegram bot with external APIs like Spotify.
-
-**Full Source Code:** [View on GitHub](https://github.com/bekzod-murotboyev/unit-bot)
-
----
-
-## Key Takeaways:
-
-1. **Comprehensive Understanding:** By finishing the documentation, you now possess a comprehensive understanding of `io.github.reflectframework:reflect-telegram-bot`, its functionalities, and how it can enhance your Telegram bot projects.
-
-2. **Skill Enhancement:** Your dedication to learning and exploring the documentation reflects your commitment to honing your skills as a developer working with Telegram bots.
-
-3. **Troubleshooting Mastery:** Armed with the troubleshooting tips and insights provided in the documentation, you are well-equipped to navigate challenges and ensure a smooth development experience.
-
-## What's Next?
-
-1. **Implementation:** It's time to put your newfound knowledge into action! Start implementing the library in your Telegram bot projects and witness the power it brings to your development journey.
-
-2. **Community Engagement:** Join community forums or channels associated with the library. Engage with other developers, share your experiences, and seek support or insights.
-
-3. **Feedback:** If you have any thoughts or suggestions about the documentation, consider providing feedback. Your input could contribute to the continuous improvement of the library's resources.
 
 ---
 
@@ -966,10 +1017,37 @@ Utilizing `reflector`, developers gain the ability to transmit messages with cus
 
 ---
 
+# Congratulations! 🎉
 
-Kudos on completing this milestone! Your commitment to learning and growing as a developer is truly inspiring. Best of luck with your Telegram bot endeavors! 🌟
+Fantastic News! You've completed reading the documentation for `io.github.reflectframework:reflect-telegram-bot`! 🚀 Your commitment to understanding the library and its features is truly commendable. Kudos on completing this milestone! Your commitment to learning and growing as a developer is truly inspiring. Best of luck with your Telegram bot endeavors! 🌟
 
 **Happy Coding!**
+
+---
+
+## Example Project: Telegram Bot using **Reflect Telegram Bot**
+
+The **Unit Bot** example project showcases a Telegram bot integrated with Spotify, allowing users to search for music by name. This project is built using `io.github.reflectframework:reflect-telegram-bot`, highlighting the seamless integration of a Telegram bot with external APIs like Spotify.
+
+**Full Source Code:** [View on GitHub](https://github.com/bekzod-murotboyev/unit-bot)
+
+---
+
+## Key Takeaways:
+
+1. **Comprehensive Understanding:** By finishing the documentation, you now possess a comprehensive understanding of `io.github.reflectframework:reflect-telegram-bot`, its functionalities, and how it can enhance your Telegram bot projects.
+
+2. **Skill Enhancement:** Your dedication to learning and exploring the documentation reflects your commitment to honing your skills as a developer working with Telegram bots.
+
+3. **Troubleshooting Mastery:** Armed with the troubleshooting tips and insights provided in the documentation, you are well-equipped to navigate challenges and ensure a smooth development experience.
+
+## What's Next?
+
+1. **Implementation:** It's time to put your newfound knowledge into action! Start implementing the library in your Telegram bot projects and witness the power it brings to your development journey.
+
+2. **Community Engagement:** Join community forums or channels associated with the library. Engage with other developers, share your experiences, and seek support or insights.
+
+3. **Feedback:** If you have any thoughts or suggestions about the documentation, consider providing feedback. Your input could contribute to the continuous improvement of the library's resources.
 
 ---
 *Feel free to customize the message based on your preferences or the specific details of the Telegram bot library you've been exploring.*
@@ -982,4 +1060,3 @@ Kudos on completing this milestone! Your commitment to learning and growing as a
 *Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
 
 *Feel free to reach out, ask questions, or provide feedback.*
-        

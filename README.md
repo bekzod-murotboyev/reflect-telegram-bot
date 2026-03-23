@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.8.0) 🤖
+# Reflect Telegram Bot Library (Version 1.8.1) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -154,16 +154,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.8.0</version>
+    <version>1.8.1</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.8.0'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.8.1'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.8.0")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.8.1")
 ```
 ---
 
@@ -918,7 +918,7 @@ import lombok.RequiredArgsConstructor;
 @BotController
 @RequiredArgsConstructor
 public class RegisterController {
-
+    
     private final Reflector reflector;
 
     @TextMapping(regexp = "/start")
@@ -952,14 +952,14 @@ public class RegisterController {
                 new InputMediaAnimation("animation-file-id")
         ));
         reflector.sendMediaGroup(sendMediaGroup);
-
+        
         reflector.getFilePath("fileId"); // used to get file info and full file path
         reflector.getFile("fileId"); // used to get file content as byte[]
         :
         
         ...
     }
-
+    
 }
 ```
 Utilizing `reflector`, developers gain the ability to transmit messages with custom structures or additional fields tailored to their specific requirements. This facilitates the integration of diverse message types, such as media files, interactive buttons, or any other custom content.
@@ -982,3 +982,4 @@ Kudos on completing this milestone! Your commitment to learning and growing as a
 *Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
 
 *Feel free to reach out, ask questions, or provide feedback.*
+        

@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.7.2) 🤖
+# Reflect Telegram Bot Library (Version 1.8.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -12,7 +12,6 @@ import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
 import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 
@@ -23,7 +22,7 @@ public class RegisterController {
     private final Sender sender;
 
     @TextMapping(regexp = "/start")
-    public UserState showStartMenu(HashedUser user) {
+    public String showStartMenu(HashedUser user) {
         sender.sendMessage(user)
                 .text("📲 Enter Your Phone")
                 .keyboardRow(KeyboardButton
@@ -34,7 +33,7 @@ public class RegisterController {
                 .resizeKeyboard(true)
                 .oneTimeKeyboard(true)
                 .send();
-        return State.SEND_PHONE;
+        return "SEND_PHONE";
     }
 
 }
@@ -49,7 +48,6 @@ import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
 import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController
@@ -59,13 +57,13 @@ public class RegisterController {
     private final Sender sender;
 
     @ContactMapping(states = {State.Fields.SEND_PHONE}, target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
-    public UserState savePhoneAndShowMainMenu(HashedUser user, String phoneNumber) {
+    public String savePhoneAndShowMainMenu(HashedUser user, String phoneNumber) {
         // ... Saving phone number
         sender.sendMessage(user)
                 .text("Choose one...")
                 .inlineKeyboardRow("Search", "Settings")
                 .send();
-        return State.MAIN_MENU;
+        return "MAIN_MENU";
     }
     
 }
@@ -80,7 +78,6 @@ import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
 import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController(order = Integer.MAX_VALUE)
@@ -90,7 +87,7 @@ public class ExceptionController {
     private final Sender sender;
 
     @TextMapping(regexp = "[\\w.-]*")
-    public UserState exceptionHandler(HashedUser user) {
+    public String exceptionHandler(HashedUser user) {
         sender.sendMessage(user)
                 .text("♨️ You entered unknown option, please try again!")
                 .send();
@@ -111,7 +108,6 @@ import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.CallbackQueryMapping.CallbackQueryMappingTarget;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController(order = 1)
@@ -121,14 +117,14 @@ public class SettingsController {
     private final Sender sender;
 
     @CallbackQueryMapping(dataRegexp = "(" + LANGUAGE_EN + "|" + LANGUAGE_RU + "+)", target = CallbackQueryMappingTarget.QUERY_DATA)
-    public UserState changeLanguage(HashedUser user, String data) {
+    public String changeLanguage(HashedUser user, String data) {
         // Updating language...
         sender.editMessageText(user)
                 .text("Choose one...")
                 .inlineKeyboardRow("Change Phone", "Change Language")
                 .inlineKeyboardRow("Back")
                 .send();
-        return State.SETTINGS_MENU;
+        return "SETTINGS_MENU";
     }
 }
 ```
@@ -158,16 +154,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.7.2</version>
+    <version>1.8.0</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.7.2'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.8.0'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.7.2")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.8.0")
 ```
 ---
 
@@ -243,25 +239,23 @@ That is enough for a fast local start. In development mode, the library stores u
 
 For production projects, you will usually want to persist users in your own database. In that case, provide your own implementations of `TelegramUserDetails` and `TelegramUserDetailsService`. Once your bean exists, the library's default in-memory implementation is skipped automatically.
 
-### **Creating type for User State as Enum**
+### **Creating type for User State as Enum** `(Optional)`
 ```java
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.experimental.FieldNameConstants;
 
 @FieldNameConstants(onlyExplicitlyIncluded = true)
-public enum State implements UserState {
+public enum State {
     @FieldNameConstants.Include INIT,
     @FieldNameConstants.Include SEND_PHONE,
     @FieldNameConstants.Include MAIN_MENU
 }
 ```
-This is simple enum, but marked as `UserState`. It helps you manage user flow and state transitions. [Lombok's](https://projectlombok.org/) [@FieldNameConstants](https://projectlombok.org/features/experimental/FieldNameConstants#:~:text=The%20%40FieldNameConstants%20annotation%20generates%20an,static%20final%20%2C%20of%20type%20java.) annotation is useful here for generating matching constant names.
+This is a simple enum. Persist or return it as `state.name()` when implementing `TelegramUserDetails`, and use its names in mapping `states = {...}` filters. [Lombok's](https://projectlombok.org/) [@FieldNameConstants](https://projectlombok.org/features/experimental/FieldNameConstants#:~:text=The%20%40FieldNameConstants%20annotation%20generates%20an,static%20final%20%2C%20of%20type%20java.) annotation is useful here for generating matching constant names.
 
 ### **Creating type for User Language as Enum** `(Optional)`
 ```java
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserLanguage;
 
-public enum Language implements UserLanguage {
+public enum Language {
     EN("en"),
     RU("ru");
 
@@ -271,20 +265,17 @@ public enum Language implements UserLanguage {
         this.code = code;
     }
 
-    @Override
     public String getCode() {
         return code;
     }
 }
 ```
-This is simple enum, but marked as `UserLanguage`. This helps you to work with multi languages. Here the `code` is suffix of one of the `messages.properties` files, for example `messages_ru.properties`.
+This is a simple enum. Store its code, such as `en`, `ru`, or `uz`, as `languageCode`. The code is the suffix of one of the `messages.properties` files, for example `messages_ru.properties`.
 
 ---
 ### **Creating your User Entity**
 ```java
 import io.github.reflectframework.reflecttelegrambot.entity.user.TelegramUserDetails;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserLanguage;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -296,21 +287,19 @@ public class UserEntity implements TelegramUserDetails {
 
     private long chatId;
 
-    @Enumerated(EnumType.STRING)
     private State state;
 
-    @Enumerated(EnumType.STRING)
-    private Language language;
+    private String languageCode;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public UserEntity(String name, long chatId, State state, Language language) {
+    public UserEntity(String name, long chatId, State state, String languageCode) {
         this.name = name;
         this.chatId = chatId;
         this.state = state;
-        this.language = language;
+        this.languageCode = languageCode;
     }
 
     public UserEntity() {}
@@ -318,23 +307,23 @@ public class UserEntity implements TelegramUserDetails {
     @Nonnull
     @Override
     public Long getChatId() {
-        return chatId;
-    }
-
-    @Nonnull
-    @Override
-    public UserState getState() {
-        return state;
+        return this.chatId;
     }
 
     @Nullable
     @Override
-    public UserLanguage getLanguage() {
-        return language;
+    public String getState() {
+        return this.state.name(); // OR NULL
+    }
+
+    @Nullable
+    @Override
+    public String getLanguageCode() {
+        return this.languageCode; // OR NULL
     }
 }
 ```
-`TelegramUserDetails` requires only three methods: `getChatId()`, `getState()`, and `getLanguage()`. `getLanguage()` is optional, so you can return `null` if you do not use i18n.
+`TelegramUserDetails` requires only three methods: `getChatId()`, `getState()`, and `getLanguageCode()`. `getLanguageCode()` is optional, so you can return `null` if you do not use i18n.
 
 ---
 ### **Creating your User Service**
@@ -367,7 +356,7 @@ public class UserService implements TelegramUserDetailsService {
                 user.getFirstName(),
                 chatId,
                 State.INIT,
-                Language.EN
+                Language.EN.getCode()
         ));
     }
 
@@ -377,12 +366,8 @@ public class UserService implements TelegramUserDetailsService {
         if (entity == null) {
             return;
         }
-        if (user.getState() instanceof State state) {
-            entity.setState(state);
-        }
-        if (user.getLanguage() instanceof Language language) {
-            entity.setLanguage(language);
-        }
+        entity.setState(user.getState() != null ? State.valueOf(user.getState()) : null);
+        entity.setLanguageCode(user.getLanguageCode() != null ? user.getLanguageCode() : null);
         userRepository.save(entity);
     }
 }
@@ -390,7 +375,7 @@ public class UserService implements TelegramUserDetailsService {
 `TelegramUserDetailsService` has only three responsibilities:
 - `findByChatId(long chatId)` should return the stored user or `null` for a new user
 - `save(User user, long chatId)` should create a new user when the chat is seen for the first time
-- `update(HashedUser user)` should persist state and language changes after handlers return a new `UserState`
+- `update(HashedUser user)` should persist state and language changes after handlers return a new `String`
 
 ---
 ### **Optional: Allowing Telegram Webhook in Spring Security**
@@ -421,9 +406,9 @@ public class WebSecurityConfiguration {
 
 ---
 ### **Handler Return Values**
-`Note❗`️ Mapping methods are triggered when the user sends an update to the bot. Inside the method, you can implement the logic to handle the received data. To ensure a coherent user experience, the method should return a `UserState` object representing the user's current state or context. This `UserState` object can store information about the user's last action or interaction.
+`Note❗`️ Mapping methods are triggered when the user sends an update to the bot. Inside the method, you can implement the logic to handle the received data. To ensure a coherent user experience, the method should return a `String` object representing the user's current state or context. This `String` object can store information about the user's last action or interaction.
 
-By consistently returning UserState objects in these mapping methods, you create a structured approach to manage user states, facilitating a more organized and responsive Telegram bot. Customize the logic within each method to suit your bot's specific requirements and enhance the overall user interaction. 🚀🤖
+By consistently returning String objects in these mapping methods, you create a structured approach to manage user states, facilitating a more organized and responsive Telegram bot. Customize the logic within each method to suit your bot's specific requirements and enhance the overall user interaction. 🚀🤖
 
 ---
 
@@ -495,7 +480,7 @@ Consider the `@TextMapping` annotation:
 
 ```java
 @TextMapping(regexp = "/start")
-public UserState startMapping(HashedUser user){
+public String startMapping(HashedUser user){
     // ....
 }
 ```
@@ -507,7 +492,7 @@ Consider the `@CallbackQueryMapping` annotation:
 
 ```java
 @CallbackQueryMapping(dataRegexp = "^option_\\d+$", target = CallbackQueryMapping.CallbackQueryMappingTarget.QUERY_DATA)
-public UserState optionMapping(HashedUser user, String optionData){
+public String optionMapping(HashedUser user, String optionData){
     // ....
 }
 ```
@@ -523,7 +508,7 @@ This feature is particularly useful in applications that need to support multipl
 Consider the `@TextMapping` annotation:
 ```java
 @TextMapping(regexp = "text-basket", translateRegexp = true)
-public UserState textBasketMapping(HashedUser user){
+public String textBasketMapping(HashedUser user){
     // ....
 }
 ```
@@ -537,7 +522,7 @@ If you specify a prefix and suffix of  `%`, the library will translate only the 
 Consider the `@CallbackQueryMapping` annotation:
 ```java
 @CallbackQueryMapping(textRegexp = "^%option%[\\d]*", translateTextRegexp = true)
-public UserState optionMapping(HashedUser user, String optionData){
+public String optionMapping(HashedUser user, String optionData){
     // ....
 }
 ```
@@ -556,11 +541,11 @@ Consider the `@TextMapping` annotation:
 
 ```java
 @TextMapping(regexp = "/start", states = {State.Fields.INIT})
-public UserState startMapping(HashedUser user){
+public String startMapping(HashedUser user){
     // ....
 }
 ```
-In this example, the @TextMapping annotation includes states = {State.INIT}. This configuration ensures that the startMapping method will only be triggered if the user is in the "INIT" state. The states field acts as a filter, allowing methods to respond selectively based on the user's current state.
+In this example, the `@TextMapping` annotation includes `states = {State.Fields.INIT}`. This configuration ensures that the `startMapping` method will only be triggered if the user is in the `"INIT"` state. The `states` field acts as a filter, allowing methods to respond selectively based on the user's current state.
 
 By leveraging the states field in mapping annotations, you introduce a dynamic element to your bot's interaction logic. Methods can be configured to respond conditionally based on the user's state, providing a tailored and context-aware user experience. 🚦🔍
 
@@ -574,7 +559,7 @@ Consider the `@ContactMapping` annotation:
 
 ```java
 @ContactMapping(target = ContactMapping.ContactMappingTarget.PHONE_NUMBER)
-public UserState locationMapping(HashedUser user, String phoneNumber){
+public String locationMapping(HashedUser user, String phoneNumber){
     // ....
 }
 ```
@@ -592,7 +577,7 @@ Consider the `@LocationMapping` annotation:
 
 ```java
 @LocationMapping(chatTypes = {ChatType.GROUP, ChatType.SUPERGROUP})
-public UserState locationMapping(HashedUser user, Location location){
+public String locationMapping(HashedUser user, Location location){
     // ....
 }
 ```
@@ -651,7 +636,7 @@ Below is an example of handling a group of photos, animations, videos, audios an
 
 ```java
 @PhotoGroupMapping
-public UserState receiveBulkPhotos(HashedUser user, PhotoGroupQueue queue) {
+public String receiveBulkPhotos(HashedUser user, PhotoGroupQueue queue) {
     for (PhotoSize photoSize : queue.takeAsList()) {
         System.out.println(photoSize.getFileId());
     }
@@ -659,7 +644,7 @@ public UserState receiveBulkPhotos(HashedUser user, PhotoGroupQueue queue) {
 }
 
 @AnimationGroupMapping
-public UserState receiveBulkAnimations(HashedUser user, AnimationGroupQueue queue) {
+public String receiveBulkAnimations(HashedUser user, AnimationGroupQueue queue) {
     for (Animation animation : queue.takeAsList()) {
         System.out.println(animation.getFileId());
     }
@@ -667,7 +652,7 @@ public UserState receiveBulkAnimations(HashedUser user, AnimationGroupQueue queu
 }
 
 @VideoGroupMapping
-public UserState receiveBulkVideos(HashedUser user, VideoGroupQueue queue) {
+public String receiveBulkVideos(HashedUser user, VideoGroupQueue queue) {
     for (Video video : queue.takeAsList()) {
         System.out.println(video.getFileId());
     }
@@ -675,7 +660,7 @@ public UserState receiveBulkVideos(HashedUser user, VideoGroupQueue queue) {
 }
 
 @AudioGroupMapping
-public UserState receiveBulkAudio(HashedUser user, AudioGroupQueue queue) {
+public String receiveBulkAudio(HashedUser user, AudioGroupQueue queue) {
     for (Audio audio : queue.takeAsList()) {
         System.out.println(audio.getFileId());
     }
@@ -683,7 +668,7 @@ public UserState receiveBulkAudio(HashedUser user, AudioGroupQueue queue) {
 }
 
 @DocumentGroupMapping
-public UserState receiveBulkDocuments(HashedUser user, DocumentGroupQueue queue) {
+public String receiveBulkDocuments(HashedUser user, DocumentGroupQueue queue) {
     for (Document document : queue.takeAsList()) {
         System.out.println(document.getFileId());
     }
@@ -691,7 +676,7 @@ public UserState receiveBulkDocuments(HashedUser user, DocumentGroupQueue queue)
 }
 
 @MediaGroupMapping
-public UserState receiveBulkMedia(HashedUser user, MediaGroupQueue queue) {
+public String receiveBulkMedia(HashedUser user, MediaGroupQueue queue) {
     for (Media media : queue.takeAsList()) {
         System.out.println(media.getFileId());
     }
@@ -741,7 +726,6 @@ import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
 import io.github.reflectframework.reflecttelegrambot.component.sender.Sender;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import lombok.RequiredArgsConstructor;
 
 @BotController
@@ -751,7 +735,7 @@ public class RegisterController {
     private final Sender sender;
 
     @TextMapping(regexp = "/start")
-    public UserState showStartMenu(HashedUser user) {
+    public String showStartMenu(HashedUser user) {
         sender.sendMessage(...);  // builder for SendMessage
         sender.editMessageText(...); // builder for EditMessageText
         sender.sendLocation(...); // builder for SendLocation
@@ -920,7 +904,6 @@ import io.github.reflectframework.reflecttelegrambot.annotation.BotController;
 import io.github.reflectframework.reflecttelegrambot.network.client.Reflector;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
 import io.github.reflectframework.reflecttelegrambot.entity.user.HashedUser;
-import io.github.reflectframework.reflecttelegrambot.util.marker.UserState;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendMediaGroup;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendDocument;
 import io.github.reflectframework.reflecttelegrambot.network.payload.telegram.request.SendAnimation;
@@ -935,11 +918,11 @@ import lombok.RequiredArgsConstructor;
 @BotController
 @RequiredArgsConstructor
 public class RegisterController {
-    
+
     private final Reflector reflector;
 
     @TextMapping(regexp = "/start")
-    public UserState showStartMenu(HashedUser user) {
+    public String showStartMenu(HashedUser user) {
         reflector.sendMessage(new SendMessage(user.getChatId().toString(), "Hello"));
 
         EditMessageText editMessageText = new EditMessageText("Updated text");
@@ -969,14 +952,14 @@ public class RegisterController {
                 new InputMediaAnimation("animation-file-id")
         ));
         reflector.sendMediaGroup(sendMediaGroup);
-        
+
         reflector.getFilePath("fileId"); // used to get file info and full file path
         reflector.getFile("fileId"); // used to get file content as byte[]
         :
         
         ...
     }
-    
+
 }
 ```
 Utilizing `reflector`, developers gain the ability to transmit messages with custom structures or additional fields tailored to their specific requirements. This facilitates the integration of diverse message types, such as media files, interactive buttons, or any other custom content.
@@ -999,4 +982,3 @@ Kudos on completing this milestone! Your commitment to learning and growing as a
 *Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
 
 *Feel free to reach out, ask questions, or provide feedback.*
-        

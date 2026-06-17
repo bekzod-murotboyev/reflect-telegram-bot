@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.8.3) 🤖
+# Reflect Telegram Bot Library (Version 1.8.5) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -13,6 +13,11 @@ import io.github.reflectframework.reflecttelegrambot.annotation.mapping.Callback
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.ContactMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.LocationMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.TextMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.UpdateMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.business.BusinessConnectionMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.business.BusinessMessageMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.business.DeletedBusinessMessagesMapping;
+import io.github.reflectframework.reflecttelegrambot.annotation.mapping.business.EditedBusinessMessageMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.animation.AnimationMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.audio.AudioMapping;
 import io.github.reflectframework.reflecttelegrambot.annotation.mapping.media.document.DocumentMapping;
@@ -27,6 +32,9 @@ import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Audio;
 import org.telegram.telegrambots.meta.api.objects.Document;
 import org.telegram.telegrambots.meta.api.objects.Video;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.business.BusinessConnection;
+import org.telegram.telegrambots.meta.api.objects.business.BusinessMessagesDeleted;
 import org.telegram.telegrambots.meta.api.objects.contact.Contact;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
@@ -133,6 +141,37 @@ public class UpdateMappingsController {
                 .send();
     }
 
+    @BusinessConnectionMapping
+    public void businessConnection(HashedUser user, BusinessConnection businessConnection) {
+        sender.sendMessage(user)
+                .text("BusinessConnectionMapping matched: " + businessConnection.getId())
+                .send();
+    }
+
+    @BusinessMessageMapping(regexp = "order-.*")
+    public void businessMessage(HashedUser user, Message message) {
+        sender.sendMessage(user)
+                .text("BusinessMessageMapping matched: " + message.getText())
+                .send();
+    }
+
+    @EditedBusinessMessageMapping(regexp = "order-.*")
+    public void editedBusinessMessage(HashedUser user, Message message) {
+        sender.sendMessage(user)
+                .text("EditedBusinessMessageMapping matched: " + message.getText())
+                .send();
+    }
+
+    @DeletedBusinessMessagesMapping
+    public void deletedBusinessMessages(BusinessMessagesDeleted deletedMessages) {
+        // Handle deleted business messages
+    }
+
+    @UpdateMapping
+    public void handleUpdate(Update update) {
+        // Handle any incoming Telegram update object directly
+    }
+
     @TextMapping(regexp = ".*", target = TextMapping.TextMappingTarget.MESSAGE)
     public void fallbackMessage(HashedUser user, Message message) {
         sender.sendMessage(user)
@@ -234,16 +273,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.8.3</version>
+    <version>1.8.5</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.8.3'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.8.5'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.8.3")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.8.5")
 ```
 ---
 
@@ -782,7 +821,7 @@ import lombok.RequiredArgsConstructor;
 @BotController
 @RequiredArgsConstructor
 public class RegisterController {
-    
+
     private final Sender sender;
 
     @TextMapping(regexp = "/start")
@@ -805,7 +844,7 @@ public class RegisterController {
         
         ...
     }
-    
+
 }
 ```
 Those methods encapsulate the complexities of sending messages, making it straightforward for developers to incorporate various communication features into their Telegram bot applications. Whether it's responding to user queries, providing updates, or delivering important information, sender methods empower developers to enhance the user experience effortlessly.
@@ -969,7 +1008,7 @@ import lombok.RequiredArgsConstructor;
 @BotController
 @RequiredArgsConstructor
 public class RegisterController {
-    
+
     private final Reflector reflector;
 
     @TextMapping(regexp = "/start")
@@ -1003,14 +1042,14 @@ public class RegisterController {
                 new InputMediaAnimation("animation-file-id")
         ));
         reflector.sendMediaGroup(sendMediaGroup);
-        
+
         reflector.getFilePath("fileId"); // used to get file info and full file path
         reflector.getFile("fileId"); // used to get file content as byte[]
         :
         
         ...
     }
-    
+
 }
 ```
 Utilizing `reflector`, developers gain the ability to transmit messages with custom structures or additional fields tailored to their specific requirements. This facilitates the integration of diverse message types, such as media files, interactive buttons, or any other custom content.
@@ -1060,4 +1099,3 @@ The **Unit Bot** example project showcases a Telegram bot integrated with Spotif
 *Connect on [Linkedin](https://www.linkedin.com/in/bekzodbek-murotboyev)*
 
 *Feel free to reach out, ask questions, or provide feedback.*
-        

@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.8.7) 🤖
+# Reflect Telegram Bot Library (Version 1.8.8) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -273,16 +273,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.8.7</version>
+    <version>1.8.8</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.8.7'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.8.8'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.8.7")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.8.8")
 ```
 ---
 

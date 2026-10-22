@@ -1,5 +1,5 @@
 
-# Reflect Telegram Bot Library (Version 1.8.9) 🤖
+# Reflect Telegram Bot Library (Version 1.9.0) 🤖
 
 Developing Telegram bots in Java is a breeze with `io.github.reflectframework:reflect-telegram-bot`! 🚀
 
@@ -72,6 +72,9 @@ public class UpdateMappingsController {
 
     @CallbackQueryMapping(textRegexp = "Open .*", target = CallbackQueryMapping.CallbackQueryMappingTarget.CALLBACK_QUERY)
     public void callbackObject(HashedUser user, CallbackQuery callbackQuery) {
+        sender.answerCallbackQuery(callbackQuery)
+                .text("Opening...")
+                .send();
         sender.sendMessage(user)
                 .text("CallbackQueryMapping matched messageId: " + callbackQuery.getMessage().getMessageId())
                 .send();
@@ -273,16 +276,16 @@ First of all add dependency to your project with one of options below:
 <dependency>
     <groupId>io.github.reflectframework</groupId>
     <artifactId>reflect-telegram-bot</artifactId>
-    <version>1.8.9</version>
+    <version>1.9.0</version>
 </dependency>
 ```
 2. Using Gradle(Short):
 ```gradle
-implementation 'io.github.reflectframework:reflect-telegram-bot:1.8.9'
+implementation 'io.github.reflectframework:reflect-telegram-bot:1.9.0'
 ```
 3. Using Gradle(Kotlin):
 ```gradle
-implementation("io.github.reflectframework:reflect-telegram-bot:1.8.9")
+implementation("io.github.reflectframework:reflect-telegram-bot:1.9.0")
 ```
 ---
 
@@ -840,6 +843,8 @@ public class RegisterController {
         sender.sendMediaGroup(...); // builder for SendMediaGroup
         sender.sendInvoice(...); // builder for SendInvoice
         sender.createInvoiceLink(...); // builder for CreateInvoiceLink
+        sender.sendChatAction(...); // builder for SendChatAction
+        sender.answerCallbackQuery(...); // builder for AnswerCallbackQuery
         :
         
         ...
@@ -865,6 +870,8 @@ Builder-based APIs now cover:
 - `sendMediaGroup(...)`
 - `sendInvoice(...)`
 - `createInvoiceLink()`
+- `sendChatAction(...)`
+- `answerCallbackQuery(...)`
 
 Always complete builder chains with `.send()`. The builder-returning methods are annotated with `@CheckReturnValue`, so IDEs can warn when the returned builder is ignored.
 
@@ -936,6 +943,14 @@ sender.forwardMessage()
 sender.deleteMessage()
         .chatId(user.getChatId())
         .messageId(user.getLastMessageId())
+        .send();
+
+sender.sendChatAction(user, SendChatActionType.TYPING)
+        .send();
+
+sender.answerCallbackQuery(callbackQuery)
+        .text("notification.completed", user.getName())
+        .showAlert(false)
         .send();
 
 sender.sendInvoice(user)
